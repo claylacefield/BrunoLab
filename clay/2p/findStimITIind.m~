@@ -22,7 +22,7 @@ startSig = x2(1,:);
 punSig = x2(8,:);
 
 dSig = runmean(startSig, 10);
-%dSig = runmean(punSig, 50);
+dSig = runmean(punSig, 50);
 
 %dSig = runmean(diff(dSig),5);
 
@@ -37,7 +37,7 @@ end
 % now trim unaccounted for spikes
 bigInds = LocalMinima(-dSig, 500, -mean(dSig)-std(dSig)); 
 for numAbnPks = 1:length(bigInds)
-    dSig(bigInds(numAbnPks)-100:bigInds(numAbnPks)+100) = dSig(bigInds(numAbnPks)-300:bigInds(numAbnPks)-100);
+    dSig(bigInds(numAbnPks)-100:bigInds(numAbnPks)+100) = 0; %mode(dSig); %dSig(bigInds(numAbnPks)-300:bigInds(numAbnPks)-100);
 end
 
 dSig = runmean(dSig,100);
@@ -54,7 +54,7 @@ stimEpEndTimes = stimEpEndTimes - 200;
 itiBegTimes = stimEpEndTimes+200;
 itiEndTimes = [stimEpBegTimes(2:end); length(punSig)]; itiEndTimes = itiEndTimes-250;
 
-plotSig = startSig;
+plotSig = punSig;
 t = 1:length(plotSig);
 figure; plot(plotSig); 
 hold on; plot(t(stimEpBegTimes), plotSig(stimEpBegTimes), 'g*');
