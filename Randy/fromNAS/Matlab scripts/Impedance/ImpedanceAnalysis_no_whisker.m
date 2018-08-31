@@ -1,0 +1,212 @@
+function [Imp, delta_z, p_delta_z] = ImpedanceAnalysis_no_whisker(wn_params, params, AP_thresh, AP_on_off)
+%Computes the impedance function of a neuron, for current injection alone%
+%                    %W Zhang, April 2, 2008%                       %
+%                    %%%%%%%%%%%%%%%%%%%%%%%%                       %
+
+PLOT = false;
+THRESH = AP_thresh;
+stimuli = ReverseArray(GetStimCodes(wn_params.filepath_v, wn_params.duration))
+%current and voltage files have the same set of stimuli%
+%get unique set of stimuli%
+n_stim = length(stimuli);
+SCALINGFACTOR = 100;
+SAMPLERATE = params.Fs; % in Hz
+
+nScans = SAMPLERATE * (wn_params.duration / 1000);
+stim_on = SAMPLERATE*((wn_params.stim_on)/1000);
+stim_off = SAMPLERATE*((wn_params.stim_end)/1000);
+x = linspace(0, wn_params.duration, nScans);
+
+stim_window = stim_off - stim_on;
+trial_start = wn_params.trial_start;
+trial_end = wn_params.trial_end;
+recSize = (nScans + 1) * 4; %in bytes
+
+disp(wn_params.filepath_v);
+disp(wn_params.filepath_i);
+
+fvid = fopen(wn_params.filepath_v, 'r', 'b');
+fiid = fopen(wn_params.filepath_i, 'r', 'b');
+
+headerSize_v = SkipHeader(fvid);
+headerSize_i = SkipHeader(fiid);
+
+nRecs_v = floor(GetNumberOfRecords(wn_params.filepath_v, wn_params.duration));
+nRecs_i = floor(GetNumberOfRecords(wn_params.filepath_i, wn_params.duration));
+
+if (nRecs_v~=nRecs_i)
+    error('current and voltage recording have different number of trials');
+end
+
+nRecs = nRecs_v;
+n_trials = ceil(nRecs/n_stim);
+
+Stim_i = zeros(stim_window, n_trials, n_stim);
+Stim_v = zeros(stim_window, n_trials, n_stim);
+stim_trial = zeros(1, n_stim);
+
+ntrials = 0;
+nskipped = 0;
+trial = 0;
+while (~feof(fvid))
+    stimulus_v = fread(fvid, 1, 'float32');
+    stimulus_i = fread(fiid, 1, 'float32');
+    %
+    %
+    trial = trial + 1;
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    if (stimulus_v ~= stimulus_i) break; end;
+    %
+    stimulus = stimulus_v;
+    %
+    signal_v = fread(fvid, nScans, 'float32');
+    signal_i = fread(fiid, nScans, 'float32');
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    if (trial >= trial_start) & (trial <= trial_end)
+
+        stim_v = signal_v(x>=wn_params.stim_on & x<= wn_params.stim_end).*100;
+        stim_i = signal_i(x>=wn_params.stim_on & x<= wn_params.stim_end).*10;
+
+        if (feof(fvid)) break; end;
+        if (feof(fiid)) break; end;
+
+        ntrials = ntrials + 1;
+        if AP_on_off
+            if max(stim_v) > THRESH
+                nskipped = nskipped + 1;
+                continue
+            end
+        end
+
+        i = find(stimuli == stimulus);
+        stim_trial(i)= stim_trial(i)+1;
+        Stim_i(:, stim_trial(i), i) = stim_i;
+        Stim_v(:, stim_trial(i), i) = stim_v;
+    end;
+end;
+hold off
+if nskipped < ntrials
+    disp(['Skipped ' num2str(nskipped) ' of ' num2str(ntrials) ' trials.']);
+else
+    disp('*********WARNING*********');
+    disp(['Skipped' num2str(nskipped) 'of' num2str(ntrials) 'trials!!']);
+    disp('Check AP Threshold Setting!!');
+end
+fclose(fvid);
+fclose(fiid); 
+for i = 1:n_stim
+    stim_i_mean (:,i) = squeeze(mean(Stim_i(:, 1:stim_trial(i), i ), 2));
+    stim_v_mean (:,i) = squeeze(mean(Stim_v(:, 1:stim_trial(i), i ), 2));
+end
+for i = 1:n_stim;
+    %      data1 = squeeze(pre_i(:,1:stim_trial(i), i));
+    %      data2 = squeeze(pre_v(:,1:stim_trial(i), i));
+    %
+    %      [C_pre, phi, S12_pre,S1_pre,S2_pre,f]= coherencyc(data1,data2,params);
+    %      CSpre(:,  i) = S12_pre;
+    %      Spre_I(:, i) = S1_pre;
+    %      Spre_V(:, i) = S2_pre;
+    %      freq = f;
+    %      Coh_pre(:, i) = C_pre;
+    %      pre_z = abs(S12_pre./S1_pre);
+    %      pre_Z(:,i) = pre_z;
+
+    data1 = stim_i_mean(:, i);
+    data2 = stim_v_mean(:, i);
+    [C_stim,phi_stim,S12_stim,S1_stim,S2_stim,f]= coherencyc(data1,data2,params);
+    CSstim(:, i) = S12_stim;
+    Sstim_I(:, i) = S1_stim;
+    Sstim_V(:, i) = S2_stim;
+    freq = f;
+    Coh_stim(:,i) = C_stim;
+    stim_z = abs(S12_stim./S1_stim);
+    stim_Z(:,i) = stim_z;
+
+    %     delta_z (:,1:stim_trial(i),i) =  stim_z - pre_z;
+    %     p_delta_z (:, 1:stim_trial(i), i) = 100.*(stim_z - pre_z)./pre_z;
+    %
+end;
+
+
+
+figure;
+minstim_i = min(min(stim_i_mean));
+maxstim_i = max(max(stim_i_mean));
+for i=1:n_stim
+    subplot(n_stim,1,i);
+    plot(stim_i_mean(:,i));
+    ylim([minstim_i maxstim_i]);
+    ylabel('current injection');
+    title(stimuli(i));
+end
+set(gcf, 'Name', 'mean current vs time');
+plotedit('ON');
+saved_i = stim_i_mean;
+save C:\Elaine\080404_model_cell\current_injection(nA).dat saved_i -ASCII -DOUBLE
+
+minstim_v = min(min(stim_v_mean));
+maxstim_v = max(max(stim_v_mean));
+
+figure;
+for i=1:n_stim
+    subplot(n_stim,1,i);
+    plot(stim_v_mean(:,i));
+    ylim([minstim_v maxstim_v]);
+    ylabel('stim voltage');
+    title(stimuli(i));
+end
+set(gcf, 'Name', 'mean voltage vs time');
+plotedit('ON');
+
+saved_v = stim_v_mean;
+save C:\Elaine\080404_model_cell\mean_voltage(V).dat saved_v -ASCII -DOUBLE
+
+figure;
+plot(freq, Coh_stim);
+xlim([0 wn_params.Fmax]);
+ylabel('stimulus coherence');
+set(gcf, 'Name', 'Coherence before and during stimulus');
+plotedit('ON');
+
+%figure  ;
+minsI = min(min(Sstim_I));
+minsV = min(min(Sstim_V));
+ymin = min([minsI minsV]);
+maxsI = max(max(Sstim_I));
+maxsV = max(max(Sstim_V));
+ymax = max([maxsI maxsV]);
+
+subplot(2,1,1);
+semilogy(freq, Sstim_I);
+ylabel('stimulus I power');
+xlabel('freq (Hz)');
+xlim([0 wn_params.Fmax]);
+ylim([ymin ymax]);
+
+subplot(2,1,2);
+semilogy(freq, Sstim_V);
+xlabel('freq (Hz)');
+ylabel('stimulus V power');
+xlim([0 wn_params.Fmax]);
+ylim([ymin ymax]);
+set(gcf, 'Name', 'I & V Power Spectrum');
+plotedit('ON');
+
+% % Plot cross spectra
+
+minsCS = min(abs(CSstim));
+maxsCS = max(abs(CSstim));
+
+ymin = minsCS;
+ymax = maxsCS;
+
+z = figure;
+figure(z);
+semilogy(freq, stim_Z);
+xlim([0 wn_params.Fmax]);
+ylabel('stimulus Z (MOhm)');
+grid on;
+set(gcf, 'Name', 'Impedance');
+plotedit('ON');

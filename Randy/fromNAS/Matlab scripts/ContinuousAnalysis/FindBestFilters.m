@@ -1,0 +1,111 @@
+function FilterSize = FindBestFilters(filepath, duration)
+
+if (nargin == 0)
+    [filename pathname OK] = uigetfile('*.dat', 'Select continuous signal file');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+end
+
+if (nargin < 2)
+    answers = str2num(cell2mat(inputdlg({'duration (msec)'}, 'Parameters', 1, {'500'})));
+    duration = answers(1);
+end
+
+FilterSize = 4.0; % start with a 4-msec filter
+msPrePeak = 0.6;
+msPostPeak = 2.0;
+
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+nScans = SAMPLERATE * (duration / 1000);
+x = linspace(0, duration, nScans);
+recSize = (nScans + 1) * 4; %in bytes
+
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+set(gcf, 'Units', 'normalized');
+set(gcf, 'Position', [0.1 0.05 0.8 0.85]);
+
+n = 0;
+while (~feof(fid))
+    stimulus = fread(fid, 1, 'float32');
+    if (feof(fid) | isempty(stimulus)) break; end;
+    signal = fread(fid, nScans, 'float32') * SCALINGFACTOR;
+    if (feof(fid) | isempty(signal)) break; end;
+
+    fsignal = medfilt1(signal, SAMPLERATE/1000 * FilterSize);
+    %fsignal = signal - mean(signal);
+    minimum = min([signal; fsignal]);
+    maximum = max([signal; fsignal]);
+
+    subplot(6,1,1);
+    plot(x, signal);
+    ylim([minimum maximum]);
+    title([filepath ', record #' num2str(n)]);
+    subplot(6,1,2);
+    plot(x, fsignal);
+    ylim([minimum maximum]);
+    title([num2str(FilterSize) '-msec median-filtered signal']);
+    subplot(6,1,3);
+    plot(x, signal-fsignal);
+    title('spikes');
+    n = n + 1;
+
+    % plot filtered signal around first spike, if any, or peak PSP
+    time = threshold((signal - fsignal), 10, 64) / (SAMPLERATE / 1000);
+    if (isempty(time))
+        %time = find(signal==max(signal)) / (SAMPLERATE / 1000);
+        continue;
+    end
+    if (time(1) > 25)
+        posstart = (time(1) - 25) * SAMPLERATE/1000;
+    else
+        posstart = 2; % scan 2
+    end
+    if (time(1) < (duration-25))
+        posend = (time(1) + 25) * SAMPLERATE/1000;
+    else
+        posend = nScans; % last scan
+    end
+
+    subplot(6,1,4);
+    plot(x(posstart:posend), signal(posstart:posend));
+    axis([x(posstart) x(posend) minimum maximum]);
+    title('zoom on first spike or max');
+    
+    subplot(6,1,5);
+    plot(x(posstart:posend), fsignal(posstart:posend));
+    axis([x(posstart) x(posend) minimum maximum]);
+    title('median filtered');
+ 
+    subplot(6,1,6);
+    plot(x(posstart:posend), RemoveSpike(signal(posstart:posend), msPrePeak, msPostPeak, FilterSize));
+    axis([x(posstart) x(posend) minimum maximum]);
+    title('spike deleted');
+    
+    %answers = inputdlg({'new median filter size (msec); click CANCEL to end', 'new pre-peak time to delete spike (msec)', 'new post-peak time (msec)'}, ...
+    %        'Parameters for spike filtering', 1, {'4', '.8', '3'})
+    
+    answers = inputdlg({'median filter size(ms)', 'pre-peak time for spike deletion (ms)', 'post-peak time for spike deletion (ms)'}, ...
+        'Parameters for spike filtering', 1, ...
+        {num2str(FilterSize), num2str(msPrePeak), num2str(msPostPeak)});
+    
+    if (isempty(answers))
+        break;
+    else
+        newMF = str2num(answers{1});
+        newPre = str2num(answers{2});
+        newPost = str2num(answers{3});
+        if (FilterSize ~= newMF | msPrePeak ~= newPre | msPostPeak ~= newPost)
+            FilterSize = newMF;
+            msPrePeak = newPre;
+            msPostPeak = newPost;
+            if (ftell(fid) >= headerSize + recSize)
+                fseek(fid, -recSize, 'cof');
+            end
+        end
+    end
+end
+
+fclose(fid);

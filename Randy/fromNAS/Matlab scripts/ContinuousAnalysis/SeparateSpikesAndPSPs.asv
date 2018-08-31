@@ -1,0 +1,99 @@
+function SeparateSpikesAndPSPs(filepath, duration, FilterSize)
+
+if (nargin == 0)
+    [filename pathname OK] = uigetfile('*.dat', 'Select continuous signal file');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+end
+
+if (nargin < 2)
+    answers = str2num(cell2mat(inputdlg({'duration (msec)'}, 'Parameters', 1, {'500'})));
+    duration = answers(1);
+end
+
+if (nargin < 3)
+    answers = str2num(cell2mat(inputdlg({'median filter size (msec)'}, 'Parameters', 1, {'4'})));
+    FilterSize = answers(1);
+end
+
+Plots = true;
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+SAMPLESPERMS = SAMPLERATE / 1000;
+nScans = SAMPLERATE * (duration / 1000);
+recSize = (nScans + 1) * 4; %in bytes
+
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+SpikesPath = [filepath(1:(length(filepath)-4)) '-spikes.cluster1']
+PspPath = [filepath(1:(length(filepath)-4)) '-psp.dat']
+
+sid = fopen(SpikesPath, 'w');
+pid = fopen(PspPath, 'w', 'b');
+fprintf(pid, '%%%%ENDHEADER\n'); %writes %%ENDHEADER
+
+if Plots
+    figure;
+end
+
+nspikes = 0;
+ntrials = 0;
+while (~feof(fid))
+    % read stimulus code and whole-cell trace
+    stimulus = fread(fid, 1, 'float32');
+    if (feof(fid) | isempty(stimulus)) break; end;
+    signal = SCALINGFACTOR * fread(fid, nScans, 'float32');
+    if (feof(fid) | isempty(signal)) break; end;
+
+    %fsignal = medfilt1(signal, SAMPLERATE/1000 * FilterSize); % median-filter whole-cell data
+    fsignal = RemoveSpike(signal);
+    
+    fwrite(pid, stimulus, 'float32'); % write stimulus code
+    fwrite(pid, fsignal, 'float32'); % and filtered data to psp file
+
+    % write a null spike to indicate trial start (just like during extracellular
+    % data acquisition)
+    record = [nspikes ntrials stimulus 0];
+    fprintf(sid, '%d\t%d\t%d\t%d\r\n', record);
+    nspikes = nspikes + 1;
+
+    spiketimes = threshold((signal - fsignal), 10, 64) / (SAMPLESPERMS);
+    spiketimes = spiketimes';
+    % if the cell spiked, write all the spikes...
+    if (length(spiketimes) > 0)
+        for time = spiketimes
+            record = [nspikes ntrials stimulus round(time*10)];
+            fprintf(sid, '%d\t%d\t%d\t%d\r\n', record);
+            nspikes = nspikes + 1;
+        end
+    end
+    
+    if (Plots)
+        mi = min([signal; fsignal]);
+        ma = max([signal; fsignal]);
+        subplot(5,1,1);
+        plot(signal);
+        ylim([mi ma]);
+        subplot(5,1,2);
+        plot(fsignal);
+        ylim([mi ma]);
+        subplot(5,1,3);
+        plot(signal - fsignal);
+        if (length(spiketimes) > 0)
+            subplot(5,1,4);
+            plot(signal(SAMPLESPERMS*(spiketimes(1)-3):spiketimes(1)+SAMPLESPERMS*3));
+            subplot(5,1,5);
+            plot(fsignal(spiketimes(1)-SAMPLESPERMS*3:spiketimes(1)+SAMPLESPERMS*3));
+        end
+        button = questdlg('Do you want to continue?', 'Continue Operation','Yes','No', 'No');
+        if strcmp(button,'No')
+            break;
+        end
+    end
+    
+    ntrials = ntrials + 1;
+end
+fclose(fid);
+fclose(pid);
+fclose(sid);

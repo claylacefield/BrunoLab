@@ -1,0 +1,15 @@
+function ScatterXYError(x,y, filled)
+%
+% Randy Bruno, October 2008
+%
+
+if nargin < 3
+    scatter(x, y);
+else
+    if filled
+        
+hold on;
+mx = median(x);
+my = median(y);
+line([mx mx], prctile(y, [25 75]));
+line(prctile(x, [25 75]), [my my]);

@@ -1,0 +1,113 @@
+function [Vm, amp, rt, sl, stim, spikes, ts] = AnalyzeEachSweep(filepath, duration, stimOnset, winstart)
+
+Plots = true;
+
+if (nargin == 0)
+    [filename pathname OK] = uigetfile('-wcp-psp.dat', 'Select median-filtered PSP file');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+else
+    %if this is not the psp file, change the filename to point to the psps
+    if (isempty(findstr('psp', filepath)))
+        filepath = [filepath(1:(length(filepath)-4)) '-psp.dat'];
+    end
+end
+
+SpikesPath = [filepath(1:(length(filepath))-7) 'spikes.cluster1'];
+
+if (nargin < 4)
+    answers = str2num(cell2mat(inputdlg({'Duration (msec)', 'Stimulus onset (msec)', 'Window Start (msec)'}, 'Parameters for sweep measurements', 1, {'500', '145', '150'})));
+    duration = answers(1);
+    stimOnset = answers(2);    
+    winstart = answers(3);
+end
+
+stimuli = ReverseArray(GetStimCodes(filepath, duration));
+nStim = length(stimuli);
+
+nrecs = GetNumberOfRecords(filepath, duration);
+
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+SAMPLESPERMS = SAMPLERATE / 1000;
+nScans = SAMPLERATE * (duration / 1000);
+x = linspace(0, duration, nScans);
+recSize = (nScans + 1) * 4; %in bytes
+
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+cluster = ReadCluster(SpikesPath);
+
+if Plots
+    figure;
+end
+
+Vm = zeros(nrecs, 1);
+amp = zeros(nrecs, 1);
+rt = zeros(nrecs, 1);
+sl = zeros(nrecs, 1);
+stim = zeros(nrecs, 1);
+spikes = zeros(nrecs, 1);
+ts = zeros(nrecs, 1);
+for i = 1:nrecs
+    Vm(i) = NaN;
+    amp(i) = NaN;
+    rt(i) = NaN;
+    sl(i) = NaN;
+    spikes(i) = NaN;
+end
+
+trial = 0;
+while (~feof(fid))
+    trial = trial + 1;   
+    
+    % read data
+    stimulus = fread(fid, 1, 'float32');
+    if (feof(fid) | isempty(stimulus)) break; end;
+    stim(trial) = stimulus;
+    signal = SCALINGFACTOR * fread(fid, nScans, 'float32');
+    if (feof(fid) | isempty(signal)) break; end;
+
+    % measure pre-stimulus Vm (e.g., UP/DOWN state)
+    Vm(trial) = median(signal(x > (stimOnset-10) & x < stimOnset));
+    
+    % measure peak amplitude during first 15 msec
+    excerpt = signal(x >= winstart & x <= (winstart+15));
+    peak = max(excerpt);
+    peak = peak(1);
+    peaktime = find(excerpt==peak);
+    peaktime = peaktime(1) / SAMPLESPERMS;
+
+    baseline = min(signal(x > winstart & x < (winstart+peaktime)));
+    amp(trial) = peak - baseline;
+    
+    % compute slope
+    [sl(trial), ltime, utime, lbound, ubound] = SlopeOfPSP(excerpt, baseline, peak); 
+    
+    % get # of spikes in first 50 ms
+    timestamps = cluster(cluster(:,2) == (trial-1), 4);
+    timestamps = timestamps(timestamps > winstart & timestamps < (winstart+25));
+    spikes(trial) = length(timestamps);
+    if (length(timestamps) > 0)
+        ts(trial) = timestamps(1);
+    end 
+    if Plots
+        plot(x, signal);
+        xlim([winstart-20 winstart+20]);
+        line([1 duration], [baseline baseline], 'Color', 'green');
+        line([1 duration], [peak peak], 'Color', 'red');
+        if (isfinite(ltime) & isfinite(utime))
+           line([ltime utime]+winstart, [lbound ubound], 'Color', 'green');
+        end    
+        title(['Vm = ' num2str(Vm(trial)) ', ampl. = ' num2str(amp(trial)) ', slope = ' num2str(sl(trial))]);
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'Position', [0 0 0.5 0.5]);
+        
+        button = questdlg('Do you want to continue viewing?', 'Continue Operation','Yes','No','No');
+        if strcmp(button,'No')
+            Plots = false;
+        end
+    end
+        
+end

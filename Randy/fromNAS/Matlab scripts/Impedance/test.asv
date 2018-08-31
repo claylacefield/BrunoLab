@@ -1,0 +1,221 @@
+%function [Imp, delta_z, p_delta_z] = BasicImpedanceAnalysis(filepath_v, filepath_i, duration, stim_onset, analysis_window, avg_window)
+[filename_v pathname_v OK] = uigetfile('C:\Documents and Settings\elaine\My Documents\Impedance experiment data\*.dat', 'Select recorded voltage file');
+if (~OK) return; end
+filepath_v = [pathname_v, filename_v];
+
+[filename_i pathname_i OK] = uigetfile('C:\Documents and Settings\elaine\My Documents\Impedance experiment data\*.dat', 'Select injected current file');
+if (~OK) return; end
+filepath_i = [pathname_i, filename_i];
+
+duration = input('Trial duration in msec: ');
+stim_onset = input('whisker stimulus onset at: (in msec)');
+analysis_window = input('response duration in msec: ');
+avg_window = input('moving_avg window for impedance smoothing: ');
+stimuli = ReverseArray(GetStimCodes(filepath_v, duration))
+%current and voltage files have the same set of stimuli%
+%get unique set of stimuli%
+n_stim = length(stimuli);
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+nScans = SAMPLERATE * (duration / 1000);
+skip = SAMPLERATE*(stim_onset/1000);
+window = SAMPLERATE*(analysis_window/1000);
+tail = nScans-skip-window;
+N_fft = window;
+%N_fft = 2^nextpow2(nScans-skip);
+
+recSize = (nScans + 1) * 4; %in bytes
+
+fvid = fopen(filepath_v, 'r', 'b');
+fiid = fopen(filepath_i, 'r', 'b');
+
+headerSize_v = SkipHeader(fvid);
+headerSize_i = SkipHeader(fiid);
+
+nRecs_v = floor(GetNumberOfRecords(filepath_v, duration));
+nRecs_i = floor(GetNumberOfRecords(filepath_i, duration));
+
+if (nRecs_v~=nRecs_i)
+    error('current and voltage recording have different number of trials'); end
+
+nRecs = nRecs_v;
+n_trials = ceil(nRecs/n_stim);
+pre_stim_i = zeros(nRecs, skip);
+pre_stim_v = zeros(nRecs, skip);
+ps_I = zeros(nRecs, skip/2);
+ps_V = zeros(nRecs, skip/2);
+
+I = zeros(n_stim, n_trials, N_fft/2);
+V = zeros(n_stim, n_trials, N_fft/2);
+Z = zeros(n_stim, n_trials, N_fft);
+coh = zeros(n_stim, n_trials, N_fft);
+stim_trial = zeros(1, n_stim);
+
+%mean_If=zeros(N_fft,1);
+%mean_Vf=zeros(N_fft,1);
+
+h = figure;
+ps = 0;
+while (~feof(fvid))
+    stimulus_v = fread(fvid, 1, 'float32');
+    stimulus_i = fread(fiid, 1, 'float32');
+    
+    
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    if (stimulus_v ~= stimulus_i) break; end;
+
+    stimulus = stimulus_v;
+    
+    skipped_v = fread(fvid, skip, 'float32');
+    skipped_i = fread(fiid, skip, 'float32');
+    ps = ps+1;
+    pre_stim_i = 2*fft(skipped_i)/skip;
+    pre_stim_v = 2*fft(skipped_v)/skip;
+    
+    ps_I(ps, :)= pre_stim_i(1:skip/2);
+    ps_V(ps, :)= pre_stim_v(1:skip/2);
+    
+    ps_VI = conj(pre_stim_i) .* pre_stim_v;
+    ps_II = conj(pre_stim_i) .* pre_stim_i;
+    ps_VV = conj(pre_stim_v) .* pre_stim_v;
+    
+    ps_z(ps, :) = ps_VI./ps_II;
+    
+    signal_v = fread(fvid, window, 'float32');
+    signal_i = fread(fiid, window, 'float32');
+
+    tail_v = fread(fvid, tail, 'float32');
+    tail_i = fread(fiid, tail, 'float32');
+
+    %signal_v = fread(fvid, nScans, 'float32');
+    %signal_i = fread(fiid, nScans, 'float32');
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    figure(h);
+    subplot(2,1,1);
+    plot(signal_v);
+    title('voltage output');
+    subplot(2,1,2);
+    plot(signal_i);
+    title('current input');
+
+    for i= 1:n_stim
+
+        if stimuli(i) == stimulus
+            %stimulus
+            i
+            stim_trial(i)= stim_trial(i)+1;
+            if max(signal_v) >= 0
+                stim_trial(i)= stim_trial(i);
+            else
+                stim_trial(i)= stim_trial(i)+1;
+                %I(i, stim_trial(i), :)= signal_i;
+                %V(i, stim_trial(i), :)= signal_v;
+
+                I_f=2*fft(signal_i)/N_fft;
+
+                %mean_If=(mean_If+I_f)/stim_trial(i);
+                I(i, stim_trial(i), :)= I_f(1:N_fft/2);
+                V_f=2*fft(signal_v)/N_fft;
+                %mean_Vf=(mean_Vf+V_f)/stim_trial(i);
+                V(i, stim_trial(i), :)= V_f(1:N_fft/2);
+                %Z(i,stim_trial(i),:)= (V_f.*I_f)./(I_f.*I_f);
+                VI = conj(V_f) .* I_f;
+                II = conj(I_f) .* I_f;
+                VV = conj(V_f) .* V_f;
+                Z(i,stim_trial(i),:)= VI ./ II;
+                coh(i, stim_trial(i), :) = abs(VI) .^2 ./ (II .* VV);
+
+            end;
+        end;
+    end;
+
+    
+    %break;
+end
+
+mean_ps_z = mean(ps_z, 1);
+mean_ps_z = mean_ps_z(1:skip/2);
+    
+freq = SAMPLERATE/2*linspace(0,1,N_fft/2);
+%matlab's fft command calculates power for DC signal as well)
+Imp = zeros(n_stim, N_fft/2);
+size(Z)
+for i=1:n_stim
+
+    mean_imp = reshape(mean(Z(i,1:stim_trial(i),1:N_fft/2)),1, N_fft/2) ;
+    mean_coh = reshape(mean(coh(i,1:stim_trial(i),1:N_fft/2)),1, N_fft/2) ;
+    mean_If = reshape(mean(abs(I(i,1:stim_trial(i),1:N_fft/2)).^2),1, N_fft/2) ;
+    mean_Vf = reshape(mean(abs(V(i,1:stim_trial(i),1:N_fft/2)).^2),1, N_fft/2) ;
+
+    Imp(i, :)= [mean_imp(1:2), moving_average(mean_imp(3:end), avg_window)];
+    Coh(i, :)= [mean_coh(1:2), moving_average(mean_coh(3:end), avg_window)];
+    I_pspec(i, :)= [mean_If(1:2), moving_average(mean_If(3:end), avg_window)];
+    V_pspec(i, :)= [mean_Vf(1:2), moving_average(mean_Vf(3:end), avg_window)];
+end
+z = figure;
+figure(z);
+%L=length(freq)-length(Imp);
+%semilogy(freq, Imp);
+subplot(2,1,1),
+semilogy(freq, Imp);
+legend('no stim','0', '45', '90', '135', '180', '225', '270', '315');
+xlim([0 200]);
+xlabel('freq');
+ylabel('impedance');
+grid on;
+subplot(2,1,2),
+plot(freq, Coh);
+ylabel('coherence');
+
+
+pspec = figure;
+figure(pspec);
+subplot(2,1,1)
+semilogy(freq, I_pspec);
+legend('no stim','0', '45', '90', '135', '180', '225', '270', '315');
+xlim([0 200]);
+xlabel('freq');
+ylabel('power spectrum of current input');
+
+subplot(2,1,2)
+semilogy(freq, V_pspec);
+xlim([0 200]);
+ylabel('power spectrum of voltage output');
+grid on;
+
+ delta_z = zeros(n_stim-1, N_fft/2);
+p_delta_z= zeros(n_stim-1, N_fft/2);
+for i=1:n_stim
+      delta_z(i,:) = Imp(i,:)-mean_ps_z;
+      p_delta_z(i,:) = (Imp(i,:)-mean_ps_z)./mean_ps_z;
+
+    
+%     delta_z(i,:) = Imp(i,:)-Imp(1,:);
+%     p_delta_z(i,:) = (Imp(i,:)-Imp(1,:))./Imp(1,:);
+
+end
+
+change_in_z=figure;
+figure(change_in_z);
+subplot(2,1,1);
+plot(freq, delta_z), title('net change in Z');
+legend('no stim','0', '45', '90', '135', '180', '225', '270', '315'),
+xlim([0 200]);
+grid on;
+
+subplot(2,1,2);
+plot(freq, p_delta_z),title('% change in Z');
+legend('no stim','0', '45', '90', '135', '180', '225', '270', '315'),
+xlim([0 200]);
+grid on;
+
+
+
+
+
+
+
+%fclose(fvid);
+%fclose(fiid);

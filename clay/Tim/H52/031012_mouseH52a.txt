@@ -1,0 +1,2465 @@
+animal number =
+031012_mouseH52a
+box number =
+4
+session length =
+34
+START time
+12:12
+initial rewarded direction (1 = top, 2 = bot)
+1
+reward amount/duration = 
+12
+program type = fast, reversal midway in session
+headfix_fastReversal_012612a.pde
+BEGIN DATA
+lever press start
+32672
+lever press start
+32790
+stim trigger (bottom/rewarded)
+33191
+REWARD!!!
+33523
+lever press start
+36600
+stim trigger (top)
+37001
+unrewarded lever press
+38292
+lever press start
+47240
+lever press start
+47498
+lever press start
+47613
+stim trigger (bottom/rewarded)
+48014
+REWARD!!!
+48302
+lever press start
+51729
+lever press start
+51868
+stim trigger (bottom/rewarded)
+52269
+REWARD!!!
+52556
+lever press start
+57699
+lever press start
+58549
+lever press start
+58671
+stim trigger (top)
+59072
+lever press start
+62368
+stim trigger (bottom/rewarded)
+62769
+REWARD!!!
+63062
+lever press start
+66138
+stim trigger (top)
+66539
+unrewarded lever press
+66813
+lever press start
+75827
+lever press start
+75952
+stim trigger (top)
+76353
+unrewarded lever press
+76672
+lever press start
+85621
+lever press start
+86164
+stim trigger (bottom/rewarded)
+86565
+REWARD!!!
+86851
+lever press start
+89927
+stim trigger (bottom/rewarded)
+90328
+REWARD!!!
+90638
+lever press start
+93716
+lever press start
+94331
+stim trigger (top)
+94732
+unrewarded lever press
+95060
+lever press start
+104297
+lever press start
+104471
+lever press start
+104711
+stim trigger (bottom/rewarded)
+105112
+REWARD!!!
+105441
+lever press start
+108518
+lever press start
+108939
+lever press start
+109031
+lever press start
+109239
+stim trigger (bottom/rewarded)
+109640
+REWARD!!!
+110008
+lever press start
+113086
+lever press start
+113538
+stim trigger (bottom/rewarded)
+113939
+REWARD!!!
+114237
+lever press start
+117829
+lever press start
+118056
+stim trigger (top)
+118457
+unrewarded lever press
+118974
+lever press start
+127922
+stim trigger (bottom/rewarded)
+128323
+REWARD!!!
+128617
+lever press start
+131695
+lever press start
+132118
+lever press start
+132433
+stim trigger (top)
+132834
+lever press start
+140707
+stim trigger (top)
+141108
+unrewarded lever press
+141557
+lever press start
+150541
+stim trigger (bottom/rewarded)
+150942
+REWARD!!!
+151379
+lever press start
+154458
+stim trigger (bottom/rewarded)
+154859
+REWARD!!!
+155148
+lever press start
+158228
+stim trigger (top)
+158629
+lever press start
+161580
+stim trigger (bottom/rewarded)
+161981
+REWARD!!!
+162268
+lever press start
+166393
+stim trigger (top)
+166794
+unrewarded lever press
+167195
+lever press start
+176145
+stim trigger (bottom/rewarded)
+176546
+REWARD!!!
+176883
+lever press start
+179960
+lever press start
+180140
+lever press start
+180450
+stim trigger (bottom/rewarded)
+180851
+REWARD!!!
+181261
+lever press start
+184340
+stim trigger (top)
+184741
+unrewarded lever press
+185072
+lever press start
+194019
+stim trigger (top)
+194420
+unrewarded lever press
+194751
+lever press start
+203701
+stim trigger (top)
+204102
+unrewarded lever press
+204516
+lever press start
+213466
+lever press start
+213799
+lever press start
+214125
+stim trigger (bottom/rewarded)
+214526
+REWARD!!!
+214848
+lever press start
+218409
+lever press start
+218686
+stim trigger (bottom/rewarded)
+219087
+REWARD!!!
+219452
+lever press start
+222529
+lever press start
+222637
+stim trigger (bottom/rewarded)
+223038
+REWARD!!!
+223422
+lever press start
+226500
+stim trigger (top)
+226902
+unrewarded lever press
+227276
+lever press start
+236225
+stim trigger (bottom/rewarded)
+236626
+REWARD!!!
+236954
+lever press start
+240031
+stim trigger (top)
+240432
+unrewarded lever press
+240784
+lever press start
+249733
+lever press start
+250089
+lever press start
+250542
+stim trigger (top)
+250943
+lever press start
+253892
+lever press start
+253948
+lever press start
+254007
+stim trigger (top)
+254408
+lever press start
+257357
+stim trigger (bottom/rewarded)
+257758
+REWARD!!!
+258066
+lever press start
+261146
+stim trigger (top)
+261547
+unrewarded lever press
+261935
+lever press start
+270882
+stim trigger (top)
+271283
+unrewarded lever press
+271614
+lever press start
+280562
+stim trigger (bottom/rewarded)
+280963
+REWARD!!!
+281275
+lever press start
+284353
+lever press start
+284617
+stim trigger (bottom/rewarded)
+285018
+REWARD!!!
+285371
+lever press start
+288588
+lever press start
+288701
+stim trigger (bottom/rewarded)
+289102
+REWARD!!!
+289390
+lever press start
+293144
+stim trigger (top)
+293545
+unrewarded lever press
+294111
+lever press start
+303736
+lever press start
+303886
+lever press start
+303959
+stim trigger (bottom/rewarded)
+304360
+REWARD!!!
+304852
+lever press start
+307933
+lever press start
+308144
+stim trigger (bottom/rewarded)
+308545
+REWARD!!!
+309009
+lever press start
+312087
+stim trigger (top)
+312488
+unrewarded lever press
+312987
+lever press start
+321937
+stim trigger (top)
+322338
+unrewarded lever press
+322714
+lever press start
+331662
+stim trigger (bottom/rewarded)
+332063
+REWARD!!!
+332447
+lever press start
+335525
+stim trigger (bottom/rewarded)
+335926
+REWARD!!!
+336244
+lever press start
+339320
+lever press start
+339761
+lever press start
+339881
+stim trigger (bottom/rewarded)
+340282
+REWARD!!!
+340695
+lever press start
+343792
+lever press start
+343909
+stim trigger (top)
+344310
+unrewarded lever press
+345730
+lever press start
+354677
+lever press start
+355026
+stim trigger (top)
+355427
+lever press start
+358377
+stim trigger (bottom/rewarded)
+358778
+REWARD!!!
+359076
+lever press start
+362152
+stim trigger (top)
+362553
+unrewarded lever press
+362841
+lever press start
+371789
+stim trigger (bottom/rewarded)
+372190
+REWARD!!!
+372616
+lever press start
+375694
+stim trigger (bottom/rewarded)
+376095
+REWARD!!!
+376437
+lever press start
+379515
+stim trigger (top)
+379916
+unrewarded lever press
+380310
+lever press start
+389373
+lever press start
+389505
+stim trigger (top)
+389906
+lever press start
+392889
+stim trigger (bottom/rewarded)
+393290
+REWARD!!!
+393928
+lever press start
+397012
+stim trigger (bottom/rewarded)
+397413
+REWARD!!!
+397719
+lever press start
+400845
+stim trigger (bottom/rewarded)
+401246
+REWARD!!!
+401558
+lever press start
+404637
+stim trigger (top)
+405038
+unrewarded lever press
+405417
+lever press start
+414365
+stim trigger (top)
+414766
+lever press start
+417717
+stim trigger (bottom/rewarded)
+418118
+REWARD!!!
+418458
+lever press start
+421535
+lever press start
+421797
+lever press start
+422119
+stim trigger (top)
+422520
+unrewarded lever press
+423061
+lever press start
+432011
+lever press start
+432336
+stim trigger (bottom/rewarded)
+432737
+REWARD!!!
+433045
+lever press start
+436125
+stim trigger (bottom/rewarded)
+436526
+REWARD!!!
+436881
+lever press start
+439959
+stim trigger (bottom/rewarded)
+440360
+REWARD!!!
+440697
+lever press start
+443774
+stim trigger (top)
+444175
+lever press start
+447124
+lever press start
+447322
+lever press start
+447598
+lever press start
+447710
+lever press start
+447946
+stim trigger (top)
+448347
+unrewarded lever press
+448703
+lever press start
+457653
+stim trigger (bottom/rewarded)
+458054
+REWARD!!!
+458439
+lever press start
+461517
+stim trigger (bottom/rewarded)
+461918
+REWARD!!!
+462214
+lever press start
+465294
+stim trigger (bottom/rewarded)
+465695
+REWARD!!!
+466098
+lever press start
+469176
+stim trigger (top)
+469577
+unrewarded lever press
+470027
+lever press start
+478974
+stim trigger (top)
+479375
+lever press start
+482324
+stim trigger (top)
+482725
+lever press start
+485693
+stim trigger (bottom/rewarded)
+486094
+REWARD!!!
+486425
+lever press start
+489503
+stim trigger (top)
+489904
+unrewarded lever press
+490330
+lever press start
+499277
+stim trigger (top)
+499678
+unrewarded lever press
+500074
+lever press start
+509024
+stim trigger (top)
+509425
+lever press start
+512373
+stim trigger (bottom/rewarded)
+512774
+REWARD!!!
+513205
+lever press start
+516283
+lever press start
+516950
+stim trigger (bottom/rewarded)
+517351
+REWARD!!!
+517760
+lever press start
+520837
+stim trigger (bottom/rewarded)
+521238
+REWARD!!!
+521559
+lever press start
+524637
+lever press start
+524684
+lever press start
+524833
+stim trigger (top)
+525234
+lever press start
+528184
+stim trigger (top)
+528585
+lever press start
+531533
+lever press start
+531727
+stim trigger (top)
+532128
+lever press start
+535077
+stim trigger (bottom/rewarded)
+535478
+REWARD!!!
+535905
+lever press start
+538982
+stim trigger (top)
+539383
+lever press start
+542331
+stim trigger (top)
+542732
+lever press start
+545681
+stim trigger (top)
+546082
+lever press start
+549032
+stim trigger (bottom/rewarded)
+549433
+REWARD!!!
+549847
+lever press start
+552925
+stim trigger (bottom/rewarded)
+553326
+REWARD!!!
+553672
+lever press start
+556749
+stim trigger (bottom/rewarded)
+557150
+REWARD!!!
+557634
+lever press start
+560711
+lever press start
+561137
+stim trigger (top)
+561538
+unrewarded lever press
+561890
+lever press start
+570839
+stim trigger (top)
+571240
+lever press start
+574188
+stim trigger (bottom/rewarded)
+574589
+REWARD!!!
+575135
+lever press start
+578236
+stim trigger (top)
+578637
+lever press start
+581587
+stim trigger (top)
+581988
+unrewarded lever press
+582414
+lever press start
+591362
+lever press start
+591716
+lever press start
+592028
+stim trigger (top)
+592429
+unrewarded lever press
+592926
+lever press start
+601876
+lever press start
+601975
+lever press start
+602327
+lever press start
+602402
+lever press start
+602443
+lever press start
+602683
+stim trigger (bottom/rewarded)
+603084
+REWARD!!!
+603499
+lever press start
+606578
+stim trigger (top)
+606979
+unrewarded lever press
+607416
+lever press start
+616364
+stim trigger (top)
+616765
+unrewarded lever press
+617070
+lever press start
+626019
+stim trigger (bottom/rewarded)
+626420
+REWARD!!!
+626770
+lever press start
+629847
+stim trigger (top)
+630248
+lever press start
+633196
+stim trigger (top)
+633597
+lever press start
+636546
+stim trigger (top)
+636947
+lever press start
+639898
+stim trigger (bottom/rewarded)
+640299
+REWARD!!!
+640585
+lever press start
+643661
+stim trigger (top)
+644062
+lever press start
+647011
+stim trigger (top)
+647412
+unrewarded lever press
+647790
+lever press start
+656739
+stim trigger (bottom/rewarded)
+657140
+REWARD!!!
+657456
+lever press start
+660533
+stim trigger (top)
+660934
+unrewarded lever press
+661321
+lever press start
+670270
+stim trigger (bottom/rewarded)
+670671
+REWARD!!!
+671126
+lever press start
+674205
+lever press start
+674335
+stim trigger (top)
+674736
+unrewarded lever press
+675132
+lever press start
+684212
+lever press start
+684440
+stim trigger (bottom/rewarded)
+684841
+REWARD!!!
+685135
+lever press start
+688211
+stim trigger (bottom/rewarded)
+688612
+REWARD!!!
+688943
+lever press start
+692021
+stim trigger (top)
+692422
+lever press start
+695370
+stim trigger (bottom/rewarded)
+695771
+REWARD!!!
+696190
+lever press start
+699269
+lever press start
+699451
+stim trigger (bottom/rewarded)
+699852
+REWARD!!!
+700142
+lever press start
+703221
+stim trigger (bottom/rewarded)
+703622
+REWARD!!!
+703908
+lever press start
+706984
+stim trigger (top)
+707385
+lever press start
+710334
+stim trigger (bottom/rewarded)
+710735
+REWARD!!!
+711058
+lever press start
+714138
+stim trigger (bottom/rewarded)
+714539
+REWARD!!!
+714897
+lever press start
+717975
+lever press start
+718034
+stim trigger (top)
+718435
+lever press start
+722684
+lever press start
+722763
+lever press start
+722868
+stim trigger (bottom/rewarded)
+723269
+REWARD!!!
+723579
+lever press start
+726658
+stim trigger (bottom/rewarded)
+727059
+REWARD!!!
+727348
+lever press start
+730427
+lever press start
+730587
+lever press start
+730766
+stim trigger (top)
+731167
+lever press start
+734117
+stim trigger (top)
+734518
+unrewarded lever press
+734806
+lever press start
+743754
+stim trigger (top)
+744155
+lever press start
+747104
+stim trigger (bottom/rewarded)
+747505
+REWARD!!!
+747794
+lever press start
+750874
+lever press start
+751048
+stim trigger (bottom/rewarded)
+751449
+REWARD!!!
+751811
+lever press start
+754890
+stim trigger (bottom/rewarded)
+755291
+REWARD!!!
+755578
+lever press start
+758654
+stim trigger (top)
+759055
+lever press start
+762004
+stim trigger (top)
+762405
+lever press start
+765356
+stim trigger (top)
+765757
+unrewarded lever press
+766139
+lever press start
+775087
+lever press start
+775134
+stim trigger (bottom/rewarded)
+775535
+REWARD!!!
+775923
+lever press start
+779000
+lever press start
+779356
+stim trigger (bottom/rewarded)
+779757
+REWARD!!!
+780155
+lever press start
+783234
+stim trigger (top)
+783635
+unrewarded lever press
+784036
+lever press start
+792986
+lever press start
+793158
+stim trigger (top)
+793559
+lever press start
+796509
+stim trigger (top)
+796910
+unrewarded lever press
+797343
+lever press start
+806292
+stim trigger (bottom/rewarded)
+806693
+REWARD!!!
+807041
+lever press start
+810120
+lever press start
+810285
+lever press start
+810336
+stim trigger (top)
+810737
+unrewarded lever press
+811129
+lever press start
+820076
+lever press start
+820276
+lever press start
+820373
+lever press start
+820772
+stim trigger (top)
+821173
+unrewarded lever press
+821679
+lever press start
+830753
+stim trigger (bottom/rewarded)
+831154
+REWARD!!!
+831493
+lever press start
+834571
+stim trigger (bottom/rewarded)
+834972
+REWARD!!!
+835261
+lever press start
+838340
+stim trigger (bottom/rewarded)
+838742
+REWARD!!!
+839031
+lever press start
+842107
+stim trigger (top)
+842508
+unrewarded lever press
+842892
+lever press start
+852211
+stim trigger (bottom/rewarded)
+852612
+REWARD!!!
+853182
+lever press start
+856260
+lever press start
+856446
+stim trigger (bottom/rewarded)
+856847
+REWARD!!!
+857353
+lever press start
+860433
+stim trigger (bottom/rewarded)
+860834
+REWARD!!!
+861205
+lever press start
+864285
+stim trigger (top)
+864686
+unrewarded lever press
+865095
+lever press start
+874043
+stim trigger (top)
+874444
+lever press start
+877392
+stim trigger (top)
+877793
+lever press start
+880742
+stim trigger (bottom/rewarded)
+881143
+REWARD!!!
+881432
+lever press start
+884511
+stim trigger (top)
+884912
+unrewarded lever press
+885343
+lever press start
+894291
+stim trigger (top)
+894692
+lever press start
+897641
+stim trigger (top)
+898042
+lever press start
+900990
+stim trigger (bottom/rewarded)
+901391
+REWARD!!!
+901952
+lever press start
+905031
+stim trigger (bottom/rewarded)
+905432
+REWARD!!!
+905838
+lever press start
+908917
+lever press start
+909262
+lever press start
+909372
+stim trigger (bottom/rewarded)
+909773
+REWARD!!!
+910121
+lever press start
+913199
+lever press start
+913662
+stim trigger (top)
+914063
+lever press start
+917012
+stim trigger (bottom/rewarded)
+917413
+REWARD!!!
+917826
+lever press start
+920903
+stim trigger (top)
+921304
+unrewarded lever press
+921818
+lever press start
+930765
+stim trigger (bottom/rewarded)
+931166
+REWARD!!!
+931628
+lever press start
+934706
+stim trigger (bottom/rewarded)
+935107
+REWARD!!!
+935515
+lever press start
+938592
+stim trigger (top)
+938993
+lever press start
+941941
+stim trigger (top)
+942342
+unrewarded lever press
+942616
+lever press start
+951566
+stim trigger (top)
+951967
+lever press start
+954917
+stim trigger (bottom/rewarded)
+955318
+REWARD!!!
+955669
+lever press start
+958749
+stim trigger (bottom/rewarded)
+959150
+REWARD!!!
+959500
+lever press start
+962580
+stim trigger (bottom/rewarded)
+962981
+REWARD!!!
+963357
+lever press start
+966434
+stim trigger (top)
+966835
+lever press start
+969784
+stim trigger (top)
+970185
+unrewarded lever press
+970523
+lever press start
+979473
+stim trigger (bottom/rewarded)
+979874
+REWARD!!!
+980260
+lever press start
+983336
+stim trigger (bottom/rewarded)
+983737
+REWARD!!!
+984032
+lever press start
+987110
+stim trigger (bottom/rewarded)
+987511
+REWARD!!!
+987800
+lever press start
+990879
+stim trigger (top)
+991280
+unrewarded lever press
+991637
+lever press start
+1000870
+lever press start
+1001186
+stim trigger (bottom/rewarded)
+1001587
+REWARD!!!
+1001944
+lever press start
+1005024
+lever press start
+1005192
+stim trigger (bottom/rewarded)
+1005593
+REWARD!!!
+1006010
+lever press start
+1009089
+stim trigger (bottom/rewarded)
+1009490
+REWARD!!!
+1009821
+lever press start
+1012898
+stim trigger (top)
+1013299
+lever press start
+1016248
+stim trigger (top)
+1016649
+unrewarded lever press
+1017062
+Reversal
+1026010
+lever press start
+1026027
+stim trigger (top)
+1026428
+unrewarded lever press
+1026774
+lever press start
+1035722
+stim trigger (bottom/rewarded)
+1036123
+lever press start
+1039072
+lever press start
+1039431
+lever press start
+1039511
+stim trigger (top)
+1039912
+unrewarded lever press
+1040272
+lever press start
+1049221
+lever press start
+1049309
+lever press start
+1049460
+stim trigger (top)
+1049861
+unrewarded lever press
+1050237
+lever press start
+1059186
+lever press start
+1059308
+lever press start
+1059516
+stim trigger (bottom/rewarded)
+1059917
+REWARD!!!
+1060558
+lever press start
+1063635
+lever press start
+1063922
+stim trigger (bottom/rewarded)
+1064323
+REWARD!!!
+1064829
+lever press start
+1067909
+lever press start
+1068105
+stim trigger (bottom/rewarded)
+1068506
+lever press start
+1071456
+stim trigger (top)
+1071857
+unrewarded lever press
+1072245
+lever press start
+1081193
+stim trigger (top)
+1081594
+unrewarded lever press
+1081972
+lever press start
+1090921
+stim trigger (top)
+1091322
+unrewarded lever press
+1091706
+lever press start
+1100655
+lever press start
+1100913
+lever press start
+1100950
+stim trigger (bottom/rewarded)
+1101351
+lever press start
+1104300
+stim trigger (top)
+1104701
+unrewarded lever press
+1105055
+lever press start
+1114004
+lever press start
+1114322
+stim trigger (top)
+1114723
+unrewarded lever press
+1115069
+lever press start
+1124018
+stim trigger (bottom/rewarded)
+1124419
+REWARD!!!
+1124804
+lever press start
+1127882
+lever press start
+1127937
+stim trigger (top)
+1128338
+unrewarded lever press
+1128776
+lever press start
+1139076
+lever press start
+1139130
+lever press start
+1139210
+lever press start
+1139439
+lever press start
+1139875
+stim trigger (bottom/rewarded)
+1140276
+REWARD!!!
+1140954
+lever press start
+1144032
+lever press start
+1144253
+stim trigger (top)
+1144654
+unrewarded lever press
+1145137
+lever press start
+1154439
+lever press start
+1154486
+lever press start
+1154606
+lever press start
+1154679
+lever press start
+1154847
+lever press start
+1154887
+lever press start
+1155031
+lever press start
+1155074
+lever press start
+1155150
+stim trigger (bottom/rewarded)
+1155551
+REWARD!!!
+1155982
+lever press start
+1159063
+lever press start
+1159467
+stim trigger (top)
+1159868
+unrewarded lever press
+1160279
+lever press start
+1169226
+lever press start
+1169397
+lever press start
+1169462
+stim trigger (top)
+1169863
+unrewarded lever press
+1170254
+lever press start
+1179201
+stim trigger (bottom/rewarded)
+1179602
+REWARD!!!
+1180008
+lever press start
+1183087
+lever press start
+1183339
+lever press start
+1183599
+lever press start
+1183935
+lever press start
+1184121
+stim trigger (top)
+1184522
+lever press start
+1187473
+stim trigger (top)
+1187874
+unrewarded lever press
+1188343
+lever press start
+1197292
+lever press start
+1197499
+lever press start
+1197627
+stim trigger (bottom/rewarded)
+1198028
+REWARD!!!
+1198828
+lever press start
+1201906
+lever press start
+1202338
+stim trigger (bottom/rewarded)
+1202739
+REWARD!!!
+1203356
+lever press start
+1206434
+stim trigger (bottom/rewarded)
+1206835
+REWARD!!!
+1207430
+lever press start
+1210510
+stim trigger (top)
+1210911
+unrewarded lever press
+1211560
+lever press start
+1220509
+lever press start
+1220675
+lever press start
+1220767
+lever press start
+1220866
+lever press start
+1221667
+lever press start
+1221996
+lever press start
+1222180
+lever press start
+1222573
+lever press start
+1222736
+lever press start
+1222814
+lever press start
+1222918
+stim trigger (bottom/rewarded)
+1223319
+REWARD!!!
+1223704
+lever press start
+1227791
+lever press start
+1228043
+stim trigger (top)
+1228444
+lever press start
+1231394
+stim trigger (bottom/rewarded)
+1231795
+REWARD!!!
+1232205
+lever press start
+1235283
+lever press start
+1235550
+stim trigger (bottom/rewarded)
+1235951
+REWARD!!!
+1236315
+lever press start
+1239395
+stim trigger (top)
+1239796
+unrewarded lever press
+1240126
+lever press start
+1249074
+stim trigger (bottom/rewarded)
+1249475
+REWARD!!!
+1249950
+lever press start
+1253029
+lever press start
+1253190
+lever press start
+1253265
+stim trigger (bottom/rewarded)
+1253666
+REWARD!!!
+1254093
+lever press start
+1257171
+lever press start
+1257259
+lever press start
+1257299
+stim trigger (bottom/rewarded)
+1257700
+REWARD!!!
+1258409
+lever press start
+1261487
+stim trigger (top)
+1261888
+lever press start
+1264836
+stim trigger (top)
+1265238
+unrewarded lever press
+1265707
+lever press start
+1274787
+lever press start
+1274960
+lever press start
+1275130
+lever press start
+1275313
+lever press start
+1275582
+lever press start
+1275615
+lever press start
+1275882
+lever press start
+1276052
+lever press start
+1276162
+lever press start
+1276230
+stim trigger (bottom/rewarded)
+1276631
+REWARD!!!
+1277335
+lever press start
+1280415
+stim trigger (top)
+1280816
+unrewarded lever press
+1282443
+lever press start
+1291679
+lever press start
+1291887
+lever press start
+1291931
+lever press start
+1292087
+lever press start
+1292160
+lever press start
+1292228
+lever press start
+1292416
+lever press start
+1292585
+lever press start
+1292655
+lever press start
+1292742
+lever press start
+1292856
+lever press start
+1292908
+lever press start
+1292971
+lever press start
+1293117
+stim trigger (top)
+1293518
+unrewarded lever press
+1293794
+lever press start
+1302743
+stim trigger (bottom/rewarded)
+1303144
+REWARD!!!
+1303485
+lever press start
+1307053
+lever press start
+1307090
+lever press start
+1307246
+lever press start
+1307316
+lever press start
+1307563
+stim trigger (bottom/rewarded)
+1307964
+REWARD!!!
+1308335
+lever press start
+1311413
+stim trigger (top)
+1311814
+lever press start
+1314762
+stim trigger (bottom/rewarded)
+1315163
+REWARD!!!
+1315622
+lever press start
+1318700
+lever press start
+1318835
+stim trigger (top)
+1319236
+unrewarded lever press
+1319763
+lever press start
+1328711
+lever press start
+1328923
+lever press start
+1328955
+lever press start
+1329042
+lever press start
+1329148
+lever press start
+1329255
+lever press start
+1329377
+lever press start
+1329421
+lever press start
+1329652
+lever press start
+1329739
+lever press start
+1329959
+lever press start
+1330280
+lever press start
+1330533
+stim trigger (top)
+1330934
+unrewarded lever press
+1331303
+lever press start
+1340253
+stim trigger (top)
+1340654
+unrewarded lever press
+1340931
+lever press start
+1349880
+stim trigger (bottom/rewarded)
+1350281
+REWARD!!!
+1350645
+lever press start
+1353723
+stim trigger (top)
+1354124
+unrewarded lever press
+1354502
+lever press start
+1363451
+stim trigger (bottom/rewarded)
+1363852
+REWARD!!!
+1364361
+lever press start
+1369316
+stim trigger (bottom/rewarded)
+1369717
+REWARD!!!
+1370304
+lever press start
+1373383
+stim trigger (bottom/rewarded)
+1373784
+REWARD!!!
+1374237
+lever press start
+1377314
+stim trigger (top)
+1377715
+unrewarded lever press
+1378281
+lever press start
+1387229
+stim trigger (top)
+1387630
+unrewarded lever press
+1388053
+lever press start
+1397003
+lever press start
+1397187
+lever press start
+1397263
+lever press start
+1397391
+lever press start
+1397458
+stim trigger (top)
+1397859
+unrewarded lever press
+1398250
+lever press start
+1407205
+lever press start
+1407383
+lever press start
+1407435
+stim trigger (bottom/rewarded)
+1407836
+REWARD!!!
+1408125
+lever press start
+1411205
+stim trigger (bottom/rewarded)
+1411606
+REWARD!!!
+1412046
+lever press start
+1415123
+lever press start
+1415507
+stim trigger (top)
+1415908
+unrewarded lever press
+1416322
+lever press start
+1425269
+stim trigger (top)
+1425670
+unrewarded lever press
+1426157
+lever press start
+1435104
+lever press start
+1435276
+lever press start
+1435380
+stim trigger (bottom/rewarded)
+1435781
+REWARD!!!
+1436120
+lever press start
+1439200
+stim trigger (bottom/rewarded)
+1439601
+REWARD!!!
+1440046
+lever press start
+1443125
+stim trigger (top)
+1443526
+unrewarded lever press
+1443918
+lever press start
+1452865
+stim trigger (bottom/rewarded)
+1453266
+REWARD!!!
+1453556
+lever press start
+1456635
+stim trigger (top)
+1457036
+unrewarded lever press
+1457404
+lever press start
+1466351
+stim trigger (top)
+1466752
+unrewarded lever press
+1467252
+lever press start
+1476201
+lever press start
+1476398
+stim trigger (top)
+1476799
+unrewarded lever press
+1477139
+lever press start
+1486709
+lever press start
+1486737
+lever press start
+1486859
+lever press start
+1487076
+lever press start
+1487584
+lever press start
+1487679
+stim trigger (bottom/rewarded)
+1488080
+REWARD!!!
+1488552
+lever press start
+1491631
+stim trigger (top)
+1492032
+unrewarded lever press
+1492625
+lever press start
+1501573
+lever press start
+1501919
+lever press start
+1502162
+stim trigger (bottom/rewarded)
+1502563
+REWARD!!!
+1502851
+lever press start
+1505931
+lever press start
+1506095
+stim trigger (bottom/rewarded)
+1506496
+REWARD!!!
+1506786
+lever press start
+1509865
+stim trigger (bottom/rewarded)
+1510266
+REWARD!!!
+1511046
+lever press start
+1514132
+stim trigger (top)
+1514533
+lever press start
+1517484
+stim trigger (bottom/rewarded)
+1517885
+REWARD!!!
+1518787
+lever press start
+1522163
+lever press start
+1522353
+stim trigger (top)
+1522754
+lever press start
+1525703
+stim trigger (bottom/rewarded)
+1526104
+REWARD!!!
+1526669
+lever press start
+1529748
+stim trigger (top)
+1530149
+unrewarded lever press
+1531689
+lever press start
+1540637
+stim trigger (bottom/rewarded)
+1541038
+REWARD!!!
+1541432
+lever press start
+1544510
+lever press start
+1544643
+lever press start
+1544798
+stim trigger (top)
+1545199
+unrewarded lever press
+1545548
+lever press start
+1554497
+stim trigger (top)
+1554898
+unrewarded lever press
+1555380
+lever press start
+1564774
+lever press start
+1564888
+lever press start
+1564952
+lever press start
+1565025
+stim trigger (top)
+1565426
+unrewarded lever press
+1565702
+lever press start
+1575343
+lever press start
+1575603
+stim trigger (bottom/rewarded)
+1576004
+REWARD!!!
+1576293
+lever press start
+1579372
+stim trigger (bottom/rewarded)
+1579773
+REWARD!!!
+1580154
+lever press start
+1583234
+stim trigger (top)
+1583635
+lever press start
+1586586
+lever press start
+1587039
+stim trigger (top)
+1587440
+lever press start
+1590389
+lever press start
+1590604
+lever press start
+1590750
+lever press start
+1590810
+stim trigger (top)
+1591211
+lever press start
+1594162
+lever press start
+1594539
+lever press start
+1594621
+lever press start
+1594727
+stim trigger (bottom/rewarded)
+1595128
+REWARD!!!
+1595570
+lever press start
+1598648
+lever press start
+1598706
+stim trigger (top)
+1599107
+unrewarded lever press
+1599677
+lever press start
+1608753
+stim trigger (bottom/rewarded)
+1609154
+REWARD!!!
+1609442
+lever press start
+1612570
+lever press start
+1612712
+lever press start
+1612886
+stim trigger (bottom/rewarded)
+1613287
+REWARD!!!
+1613834
+lever press start
+1616913
+stim trigger (top)
+1617314
+lever press start
+1620264
+lever press start
+1620685
+lever press start
+1620825
+stim trigger (top)
+1621226
+lever press start
+1624175
+lever press start
+1624294
+stim trigger (bottom/rewarded)
+1624695
+REWARD!!!
+1625116
+lever press start
+1628194
+stim trigger (top)
+1628595
+lever press start
+1631544
+stim trigger (bottom/rewarded)
+1631945
+REWARD!!!
+1632553
+lever press start
+1635631
+stim trigger (bottom/rewarded)
+1636032
+REWARD!!!
+1636591
+lever press start
+1639669
+stim trigger (top)
+1640070
+lever press start
+1643019
+lever press start
+1643549
+lever press start
+1643696
+lever press start
+1643825
+stim trigger (bottom/rewarded)
+1644226
+REWARD!!!
+1644694
+lever press start
+1647773
+lever press start
+1648115
+lever press start
+1648181
+lever press start
+1648374
+stim trigger (top)
+1648775
+lever press start
+1651726
+stim trigger (top)
+1652127
+unrewarded lever press
+1652523
+lever press start
+1661471
+stim trigger (bottom/rewarded)
+1661872
+REWARD!!!
+1662368
+lever press start
+1665445
+stim trigger (top)
+1665846
+unrewarded lever press
+1667251
+lever press start
+1676200
+stim trigger (bottom/rewarded)
+1676601
+REWARD!!!
+1677074
+lever press start
+1680801
+lever press start
+1681110
+lever press start
+1681211
+lever press start
+1681358
+lever press start
+1681585
+stim trigger (bottom/rewarded)
+1681986
+REWARD!!!
+1682414
+lever press start
+1686563
+stim trigger (bottom/rewarded)
+1686964
+REWARD!!!
+1687346
+lever press start
+1690424
+lever press start
+1690861
+stim trigger (top)
+1691262
+lever press start
+1694213
+stim trigger (top)
+1694614
+unrewarded lever press
+1694998
+lever press start
+1703947
+lever press start
+1704264
+lever press start
+1704941
+lever press start
+1705055
+stim trigger (top)
+1705456
+unrewarded lever press
+1705792
+lever press start
+1714741
+stim trigger (bottom/rewarded)
+1715142
+REWARD!!!
+1715493
+lever press start
+1718572
+stim trigger (bottom/rewarded)
+1718973
+REWARD!!!
+1719588
+lever press start
+1722668
+stim trigger (bottom/rewarded)
+1723069
+REWARD!!!
+1723694
+lever press start
+1726773
+stim trigger (top)
+1727174
+unrewarded lever press
+1728013
+lever press start
+1736962
+stim trigger (bottom/rewarded)
+1737363
+REWARD!!!
+1737830
+lever press start
+1740908
+lever press start
+1741175
+stim trigger (top)
+1741576
+unrewarded lever press
+1742350
+lever press start
+1751346
+lever press start
+1751617
+lever press start
+1751825
+lever press start
+1752062
+lever press start
+1752206
+lever press start
+1752395
+lever press start
+1752628
+lever press start
+1752872
+lever press start
+1752948
+stim trigger (top)
+1753349
+unrewarded lever press
+1753817
+lever press start
+1762955
+stim trigger (bottom/rewarded)
+1763356
+REWARD!!!
+1764062
+lever press start
+1767393
+lever press start
+1767692
+stim trigger (bottom/rewarded)
+1768093
+REWARD!!!
+1768567
+lever press start
+1771646
+lever press start
+1772061
+stim trigger (top)
+1772462
+lever press start
+1775413
+stim trigger (top)
+1775814
+unrewarded lever press
+1776259
+lever press start
+1785838
+lever press start
+1786054
+lever press start
+1786225
+stim trigger (top)
+1786626
+unrewarded lever press
+1786901
+lever press start
+1795851
+lever press start
+1796101
+lever press start
+1796224
+lever press start
+1796297
+lever press start
+1796486
+lever press start
+1796692
+lever press start
+1796866
+lever press start
+1796941
+lever press start
+1797480
+lever press start
+1797704
+stim trigger (bottom/rewarded)
+1798105
+REWARD!!!
+1798591
+lever press start
+1801671
+lever press start
+1801843
+stim trigger (bottom/rewarded)
+1802244
+REWARD!!!
+1802700
+lever press start
+1805779
+stim trigger (bottom/rewarded)
+1806180
+REWARD!!!
+1806688
+lever press start
+1809766
+lever press start
+1809918
+lever press start
+1812098
+lever press start
+1812396
+lever press start
+1812452
+stim trigger (top)
+1812853
+lever press start
+1815803
+lever press start
+1816002
+lever press start
+1818232
+lever press start
+1818301
+lever press start
+1818440
+lever press start
+1818692
+lever press start
+1818857
+lever press start
+1819034
+stim trigger (bottom/rewarded)
+1819435
+REWARD!!!
+1819891
+lever press start
+1825454
+lever press start
+1825582
+stim trigger (bottom/rewarded)
+1825983
+REWARD!!!
+1826452
+lever press start
+1829533
+stim trigger (top)
+1829934
+unrewarded lever press
+1830274
+lever press start
+1839221
+stim trigger (bottom/rewarded)
+1839622
+REWARD!!!
+1840490
+lever press start
+1843731
+lever press start
+1843863
+stim trigger (top)
+1844264
+unrewarded lever press
+1845059
+lever press start
+1854583
+stim trigger (top)
+1854984
+unrewarded lever press
+1855423
+lever press start
+1864691
+lever press start
+1864944
+lever press start
+1865005
+lever press start
+1865553
+lever press start
+1865811
+stim trigger (top)
+1866212
+lever press start
+1869161
+stim trigger (bottom/rewarded)
+1869562
+REWARD!!!
+1870051
+lever press start
+1873129
+stim trigger (bottom/rewarded)
+1873530
+REWARD!!!
+1874094
+lever press start
+1877173
+stim trigger (bottom/rewarded)
+1877574
+REWARD!!!
+1878078
+lever press start
+1881156
+stim trigger (top)
+1881558
+unrewarded lever press
+1881885
+lever press start
+1890833
+stim trigger (top)
+1891234
+unrewarded lever press
+1891599
+lever press start
+1901914
+lever press start
+1902225
+lever press start
+1903407
+lever press start
+1903665
+lever press start
+1904012
+stim trigger (top)
+1904413
+unrewarded lever press
+1904934
+lever press start
+1913882
+stim trigger (bottom/rewarded)
+1914283
+REWARD!!!
+1914806
+lever press start
+1921675
+lever press start
+1921774
+lever press start
+1921856
+stim trigger (bottom/rewarded)
+1922257
+REWARD!!!
+1922603
+lever press start
+1925682
+stim trigger (top)
+1926083
+unrewarded lever press
+1926483
+lever press start
+1935568
+lever press start
+1936778
+lever press start
+1936936
+lever press start
+1936980
+lever press start
+1937158
+stim trigger (bottom/rewarded)
+1937559
+REWARD!!!
+1937976
+lever press start
+1942497
+stim trigger (bottom/rewarded)
+1942898
+REWARD!!!
+1943212
+lever press start
+1966923
+lever press start
+1966995
+lever press start
+1967201
+stim trigger (bottom/rewarded)
+1967602
+REWARD!!!
+1968072
+lever press start
+1973243
+lever press start
+1973647
+lever press start
+1974011
+lever press start
+1974237
+lever press start
+1974315
+lever press start
+1974403
+lever press start
+1974523
+stim trigger (top)
+1974924
+unrewarded lever press
+1975422
+lever press start
+1984370
+stim trigger (bottom/rewarded)
+1984771
+REWARD!!!
+1985941
+lever press start
+1989021
+stim trigger (bottom/rewarded)
+1989422
+REWARD!!!
+1990072
+lever press start
+1993150
+lever press start
+1993347
+lever press start
+1993396
+lever press start
+1993617
+lever press start
+1994067
+stim trigger (top)
+1994468
+unrewarded lever press
+1994876
+lever press start
+2005002
+lever press start
+2005236
+stim trigger (bottom/rewarded)
+2005637
+REWARD!!!
+2006019
+lever press start
+2009099
+lever press start
+2009331
+lever press start
+2009462
+stim trigger (bottom/rewarded)
+2009863
+REWARD!!!
+2010573
+lever press start
+2013651
+stim trigger (bottom/rewarded)
+2014052
+REWARD!!!
+2014360
+lever press start
+2017439
+stim trigger (top)
+2017840
+unrewarded lever press
+2018115
+lever press start
+2027078
+lever press start
+2027702
+lever press start
+2028228
+stim trigger (bottom/rewarded)
+2028630
+REWARD!!!
+2029227
+END time
+12:46

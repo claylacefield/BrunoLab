@@ -1,0 +1,33 @@
+
+
+
+% script to calculate binned error rates over the entire session
+
+minBin = 2;  % time base over which to calculate histograms (in minutes)
+bin = minBin*60000; % bin size, in ms
+
+for i= 1:length(correctRespStruc) 
+    stimTimeArr = correctRespStruc(i).stimTimeArr;  % load in variable of trial times for this day
+    lastTime = stimTimeArr(end);    % find last trial time
+    lastTimeMinRound = ceil(lastTime/60000);  % find total number of minutes of session
+    numBins = minBin*ceil(lastTimeMinRound/minBin);
+    binFracMouse= zeros(length(correctRespStruc), numBins);
+
+  for k=1:numBins  % for each timebin in trial
+        
+        binRew2 = 0; binRewStim2 = 0; binUnrew2 = 0; binUnrewStim2=0;
+        
+        numCorrectBin(k)=0; numRewStimBin(k)=0; binFrac4(k)=0;
+        binTotal = find(reward > (k-1)*bin & reward <= k*bin);   % output rewards occuring within this timebin
+        binStimTimes = find(stimTimeArr > (k-1)*bin & stimTimeArr <= k*bin);
+        numRewLevBin(k) = length(binRew2);    % # rewarded lever presses
+        numStimBin(k) = length(binRewStim2);    % # rewarded stimuli
+        
+        if numRewStimBin(k) == 0; % || numRewLevBin == 0;
+            binFrac4(k) = 0;
+        else
+        binFrac4(k) = numRewLevBin(k)/numRewStimBin(k);  % fraction of rewarded lever presses for this timebin
+        end
+            
+  end
+end

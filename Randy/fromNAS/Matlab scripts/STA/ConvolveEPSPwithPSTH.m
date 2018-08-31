@@ -1,0 +1,163 @@
+function [psths, average, x]  = ConvolveEPSPwithPSTH(tpolarpath, cpolarpath, STApath)
+
+stimOnset = 145;
+
+% read .cluster file containing polar data
+if nargin==0
+    [filename pathname OK] = uigetfile(['*.cluster?'], 'Select .cluster file containing thalamic polar data');
+    if (~OK) return; end
+    tpolarpath = [pathname, filename];
+end
+cluster = ReadCluster(tpolarpath);
+
+% select .wcp-psp.dat file containing polar data
+if nargin < 2
+    [filename pathname OK] = uigetfile(['*wcp-psp.dat'], 'Select .dat file containing cortical polar data');
+    if (~OK) return; end
+    cpolarpath = [pathname, filename];
+end
+
+% read .txt file containing STA
+if nargin == 3 & strcmp(STApath, 'none')
+    noSTA = true;
+else  
+    noSTA = false;
+    if nargin < 3
+        [filename pathname OK] = uigetfile('*.txt', 'Select .txt file containing STA');
+        if (~OK) return; end
+        STApath = [pathname, filename];
+    end
+    STAdata = dlmread(STApath, '\t');
+    STAx = STAdata(:,1);
+    STAy = STAdata(:,2);
+
+    STAy = STAy - mean(STAy(STAx >= 0 & STAx < 0.5)); % correct for any slight remaining offset
+    % excerpt 0-50 msec of STA
+    STAy = STAy(STAx >= 0 & STAx < 50);
+    STAx = STAx(STAx >= 0 & STAx < 50);
+end
+
+% compute PSTHs with 1/32-msec bins
+[psths, x, nStim] = PSTHbyStim(cluster, 150, 350, false, 500, 1/32);
+
+% plot PSTHs with 1-msec bins
+[psths1, x1, nStim] = PSTHbyStim(cluster, 150, 350, false, 500, 1);
+figure;
+maxp = 0;
+for i = 1:nStim
+    subplot(8, 3, 3*(i-1)+1);
+    bar(x1, psths1(:, i));
+    box off;
+    maxp = max([max(psths1(:, i)) maxp]);
+    xlim([min(x1) max(x1)]);
+    if (i == 4)
+        ylabel('spikes / stimulus / bin');
+    end
+end
+xlabel('msec')
+
+if ~noSTA
+    % plot convolution of STA and PSTHs
+    maxc = 0;
+    convolution = [];
+    unitaryCharge = 0;
+    for i = 1:nStim
+        c = conv(STAy, psths(:, i));
+        c = c(1:length(x));
+        convolution = [convolution c];
+        maxc = max([max(c) maxc]);
+        subplot(8, 3, 3*(i-1)+2);
+        plot(x, c);
+        unitaryCharge = unitaryCharge + sum(c(x > 150 & x < 350)) / (350-150);
+        box off;
+        xlim([1 500]);
+    end
+
+    for i = 1:nStim
+        subplot(8, 3, 3*(i-1)+1);
+        ylim([0 maxp]);
+        subplot(8, 3, 3*(i-1)+2);
+        ylim([0 maxc]);
+        if (i == 4)
+            ylabel('average mV change / stimulus');
+        end
+    end
+    xlabel('msec');
+else
+    unitaryCharge = NaN;
+end
+
+% plot full cortical responses
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+duration = 500;
+%nStim = 8; % assumed to be 8
+trialstart = 0;
+trialend = 1000;
+
+nScans = SAMPLERATE * (duration / 1000);
+x = linspace(0, duration, nScans);
+recSize = (nScans + 1) * 4; %in bytes
+
+stimuli = ReverseArray(GetStimCodes(cpolarpath, duration))
+
+fid = fopen(cpolarpath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+% average each condition separately
+n = zeros(nStim, 1); % number of reps for each stimulus
+average = zeros(nScans, nStim);
+psp = zeros(nStim, 1);
+psps = [];
+slope = [];
+stim = [];
+trial = 0;
+while (~feof(fid))
+    stimulus = fread(fid, 1, 'float32');
+    if (feof(fid) | isempty(stimulus)) break; end;
+    signal = SCALINGFACTOR * fread(fid, nScans, 'float32') - 7;
+    if (feof(fid) | isempty(signal)) break; end;
+    if (trial >= trialstart) & (trial <= trialend)
+        i = PositionInArray(stimuli, stimulus);
+        n(i) = n(i) + 1;
+
+        average(:, i) = MemorylessAverage(average(:, i), signal, n(i));
+    end
+    trial = trial + 1;
+end
+fclose(fid);
+
+% plot averages of .psp.dat signals
+minimum = min(min(average));
+maximum = max(max(average));
+totalCharge = 0;
+    for i = 1:nStim
+    subplot(8, 3, 3*i);
+        plot(x, average(:, i));
+        set(gca, 'Box', 'Off');
+        axis([0 duration minimum maximum]);
+        if (nargin == 3)
+            line([stimOnset stimOnset], [minimum, maximum], 'Color', 'green');
+        end
+        if (i < nStim)
+            set(gca, 'XTickLabel', '');
+            xlabel('');
+        end
+        if (i == floor(nStim/2))
+            ylabel('mean Vm')
+        end
+        title(['angle = ', num2str(StimCodeToDegrees(stimuli(i))), '; stimCode = ', num2str(stimuli(i))]);
+        rest = mean(average(x < 150, i));
+        totalCharge = totalCharge + sum(average(x > 150 & x < 350, i) - rest) / (350-150);
+    end
+    xlabel('msec');
+end
+
+subplot(8, 3, 1);
+title('Thalamocortical PSTHs for 8 directions');
+subplot(8, 3, 2);
+title(sprintf([strrep(STApath, '\', '\\') ...
+        '\ntotal charge of PSP / charge of unitary PSP = ' num2str(totalCharge / unitaryCharge) ...
+        '\nConvolution of PSTHs and unitary PSP']));
+subplot(8, 3, 3);
+title('Average cortical PSPs for 8 directions');

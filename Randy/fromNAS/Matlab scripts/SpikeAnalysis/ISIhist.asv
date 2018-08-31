@@ -1,0 +1,14 @@
+function ISIhist(cluster)
+
+% ISIHIST Plots an ISI histogram.
+
+cluster = RemoveNullSpikes(cluster);
+ISIs = ISIof(cluster);
+i = isnan(ISIs);
+i = i(i==F);
+if isnan(ISIs)
+hist(ISIs, 10*max(ISIs));
+xlabel('interspike interval (msec)');
+ylabel('n');
+set(gca, 'XScale', 'log');
+axis([0 Inf -Inf Inf]);

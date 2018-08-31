@@ -1,0 +1,103 @@
+function [n, x] = PSTH(cluster, winstart, winend, stimcode, Plots, binmax, binwidth)
+% PSTH Peri-stimulus time histogram.
+% PSTH(CLUSTER) plots a PSTH for the spike data contained in cluster.
+% Randy Bruno, April 2003; last modified June 2005
+%
+% INPUTS
+% cluster: a standard cluster matrix
+% winstart: start of period to calculate a response (msec)
+% winend: end of period to calculate a response (msec)
+% stimcode: if this is set to a particular stimulus code, PSTH runs only
+% on records having that stimulus code (e.g., a particular direction);
+% give an empty variable to specify all stimulus codes should be processed
+% Plots: set to true to generate a plot of the PSTH; set to false just to
+% return n and x
+% binmax: the highest bin value that should be calculated
+% binwidth: the size of bins used in calculating the PSTH
+%
+% OUTPUTS
+% n: an array of spike counts
+% x: an array specifying the corresponding bins
+
+if nargin == 0
+    [filename pathname OK] = uigetfile('*.*', 'Select .cluster file to analyze');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+    cluster = ReadCluster(filepath);
+end 
+
+if nargin < 2
+    answers = inputdlg({'Window Start (msec)', 'Window End (msec)', 'Binwidth (msec)'}, 'Parameters for analysis', 1, {'1', '500', '1'});
+    winstart = str2num(answers{1});
+    winend = str2num(answers{2});
+    binwidth = str2num(answers{3});
+end
+
+ntrials = length(unique(cluster(:,2)));
+
+cluster = RemoveNullSpikes(cluster);
+timestamp = cluster(:,4);
+
+if nargin < 7
+    binmax = max(timestamp);
+end
+
+if nargin < 4 | isempty(stimcode)
+    stimuli = unique(cluster(:,3));
+    if length(stimuli) == 1
+        stimcode = stimuli;
+    else
+        stimcode = [];
+    end
+end
+
+if (nargin < 5)
+    Plots = true;
+end
+
+x = linspace(0, binmax, binmax/binwidth);
+
+if (isempty(timestamp))
+    n = zeros(binmax/binwidth, 1);
+else
+    n = histc(timestamp, x);
+end
+n = n / ntrials;
+
+if (Plots)
+    bar(x, n);
+    xlabel('msec');
+    ylabel('spikes / stimulus / bin');
+    spontaneous = 10 * sum(n(x>=1 & x<101));
+
+    switch nargin
+        case 1
+            title(['spontaneous = ', num2str(spontaneous, 3), ' Hz']);
+        otherwise
+            ON = sum(n(x>=winstart & x<winend));
+            if (isempty(stimcode))
+                titl = [];
+            else
+                titl = ['stimulus: ', num2str(stimcode) '; '];
+                if stimcode <= -21 & stimcode >= -28
+                    titl = ['angle: ' num2str(StimCodeToDegrees(stimcode)) '; ' titl];
+                end
+            end
+            title([titl 'spontaneous = ', num2str(spontaneous, 3), ' Hz; ON = ', num2str(ON, 3), ' spikes/stim; # spikes = ', num2str(length(timestamp))]);
+            hold on;
+            area([winstart winstart winend winend], [0 max(n) max(n) 0], 'FaceColor', 'yellow', 'EdgeColor', 'none', 'FaceAlpha', 0.5);
+            hold off;
+    end
+    if (~isempty(timestamp))
+        %axis([1 max(x) 0 max(n(2:end))]);
+        axis([0 max(x) 0 max(n)]);
+    end
+end
+
+if ncols(n) > nrows(n)
+    n = n';
+end
+
+if ncols(x) > nrows(x)
+    x = x';
+end

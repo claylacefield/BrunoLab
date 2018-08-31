@@ -1,0 +1,45 @@
+function [pval] = CompareProportions(successes, attempts, alternative)
+
+% Compares two proportions using the Z approximation to binomial.
+%
+% successes: 2-element vector, # of successful attempts for each of 2 categories
+% attempts: 2-element vector, # of attempts for each of 2 categories
+% alternative: 2 (two-sided), 1 (first proportion larger than second),
+%              -1(first proportion smaller than second)
+%
+% could use Matlab's binomial functions for more exact calculation 
+%
+% Randy Bruno
+
+if nargin < 2
+    error('requires 2 or more arguments.');
+end
+if nargin < 3
+    alternative = 2;
+end
+
+pr = successes ./ attempts;
+if sum(attempts .* pr < 5) || sum(attempts .* (1 - pr) < 5)
+    disp('warning: sample sizes may be too small for CompareProportions');
+end
+for p = pr
+    if p > 1 error('some proportion > 1.0'); end
+    if p < 0 error('negative proportion'); end
+end
+
+phat = sum(successes) / sum(attempts);
+sp = sqrt(phat * (1-phat) * (1/attempts(1) + 1/(attempts(2))));
+z = (pr(1) - pr(2)) / sp;
+
+switch alternative
+    case 2
+        pval = 2 * cdf('norm', -abs(z), 0, 1);
+    case 1
+        pval = cdf('norm', -z, 0, 1);
+    case -1
+        pval = cdf('norm', z, 0, 1);
+    otherwise
+        error('alternative must be -1, 1, or 2');
+end
+
+

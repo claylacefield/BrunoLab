@@ -1,0 +1,80 @@
+function [su, sd] = PSTHgivenVm(cluster, filepath, duration, winstart, winend, trialstart, trialend)
+
+% Plots PSTHs of a .cluster file (spikes) based on the average Vm of a
+% continuous .dat file (whole-cell recording).
+%
+% Randy Bruno, November 2003
+
+if nargin < 1
+    % Read spikes
+    cluster = ReadCluster;
+    %cluster = cluster(cluster(:,2) < 100, :);
+end
+trial = cluster(:,2);
+
+if nargin < 2
+    % Select a continuous file
+    [filename pathname OK] = uigetfile('*.dat', 'Select a dat file to read');
+    if (~OK) return; end
+    filepath = fullfile(pathname, filename)
+end
+
+if nargin < 5
+    % Get parameters for analysis
+    answers = inputdlg({'Duration (msec)', 'Window Start (msec)', 'Window End (msec)'}, 'Parameters for PSTH given Vm', 1, {'3000', '0', '500'});
+    duration = str2num(answers{1});
+    winstart = str2num(answers{2});
+    winend = str2num(answers{3});
+end
+
+if nargin < 7
+    trialstart = 0;
+    trialend = 1000;
+end
+
+% set constants
+SAMPLERATE = 32000; % in Hz
+SCALINGFACTOR = 100;
+nrecs = GetNumberOfRecords(filepath, duration);
+nScans = SAMPLERATE/1000 * duration;
+x = linspace(0, duration, nScans);
+
+% open continuous file for reading
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+% determine the average Vm during the period of interest
+Vmspike = zeros(nrows(cluster), 1);
+Vmtrial = zeros(nrecs, 1);
+for sweep = trialstart:trialend
+    disp(sweep);
+    [stimcode, data] = GetRecord(fid, headerSize, duration, sweep);
+    spikestim = cluster(trial==sweep, 3);
+    if isempty(spikestim) | isempty(stimcode) | spikestim ~= stimcode
+        error('Stimulus codes do not match.');
+    end
+    Vmtrial(sweep+1) = mean(data(x >= winstart & x <= winend)) * SCALINGFACTOR;
+    Vmspike(trial==sweep) = Vmtrial(sweep+1);
+end
+
+% plot PSTHs for spikes after subsetting for Vm
+figure;
+subplot(2,1,1);
+clu = cluster(Vmspike > median(Vmtrial), :);
+clu = clu(clu(:,4) > 1 & clu(:,4) < 500, :);
+su = 2 * nrows(clu) / (max(clu(:,2)+1));
+if isempty(su)
+    su = 0;
+end
+raster(clu);
+xlim([1 500]);
+
+subplot(2,1,2);
+clu = cluster(Vmspike < median(Vmtrial), :);
+clu = clu(clu(:,4) > 1 & clu(:,4) < 500, :);
+sd = 2 * nrows(clu) / (max(clu(:,2)+1));
+if isempty(sd)
+    sd = 0;
+end
+raster(clu);
+xlim([1 500]);

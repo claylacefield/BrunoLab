@@ -1,0 +1,22 @@
+function cluster = ReadCluster(filename)
+% READCLUSTER Read a cluster file.
+% READCLUSTER(FILENAME), where FILENAME is a string specifying a file,
+% returns an array of timestamps and trial information.
+% Returns NaN if user cancels or file not found.
+% Randy Bruno, May 2003
+
+if (nargin==0)
+   [filename pathname] = uigetfile('*.cluster?', 'Select a cluster file to read');
+   filename = fullfile(pathname, filename);
+end
+
+if (filename & exist(filename, 'file'))
+    disp(['Reading ', filename, '...']);
+    cluster = dlmread(filename, '\t');
+    cluster(:,3) = signif(cluster(:,3), 1); % This is to ensure readability of old extracellular datafiles from Pittsburgh.
+    cluster(:,4) = cluster(:,4) / 10;
+    disp(['Read ', num2str(length(cluster)), ' records']);
+else
+    cluster = NaN;
+    error('file not found');
+end

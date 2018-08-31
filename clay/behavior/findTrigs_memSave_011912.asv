@@ -1,0 +1,45 @@
+
+
+% Function to detect events in DAT files that doesn't read in entire binary
+% data file (to save memory)
+% Want to include: filter function, pos or neg, timeout
+
+
+[filename pathname] = uigetfile('*.dat', 'Select a .dat file of stimulus triggers to read');
+filepath = [pathname filename];
+
+[fid, message] = fopen(filepath, 'r', 'b');
+
+headerSize = SkipDATHeader(fid);    % uses Randy function to skip his types of headers from ntrode
+
+
+
+sizeA = 3200000;   % number of samples to read at a time
+
+j = 0;
+
+while ~feof(fid)
+    stimTemp = fread(fid, sizeA,'*float32');      % read in only some chunk of data at a time
+    
+    i = 1;
+    x = 0;
+    
+    while i < (length(stimTemp)-1)
+        if (stimTemp(i)>1)
+            x = x+1;
+            stimTrig(x) = i;    % save sample number of this event into array
+            i = i + 32000;  % wait a second before looking for more stim triggers
+        else
+            i = i + 1;
+        end
+    end
+    
+    j=j+1;
+    
+    t = (j*1):(j*length(stimTemp));
+    trigTimes = t(stimTrig);    % times (in samples) of stimulus triggers
+    
+end
+
+
+

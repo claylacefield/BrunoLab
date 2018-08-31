@@ -1,0 +1,187 @@
+function  [linRegStruc] = frameLinReg(dataFileArray)
+
+% [ dendriteBehavStruc, rewTif ] = dendriteBehavAnalysis(nChannels, hz, avg, roi)
+% Master script for looking at behavior-triggered average calcium signals
+
+% batchDendStruc2hz, batchDendStruc4hz
+
+% BATCH script
+% reads info from 'dataFileArray' to load in all listed TIF stacks of
+% imaging sessions and their corresponding BIN and TXT files
+% and then calculates the event-triggered wholeframe calcium averages
+% before saving them to the dendriteBehavStruc_(TIF filename) in the same
+% folder
+% AND
+% concatenates all the data for each framerate for each mouse
+
+
+cageFolder = uigetdir;      % select the animal folder to analyze
+cd(cageFolder);
+%[pathname animalName] = fileparts(mouseFolder);
+cageDir = dir;
+
+load('masterFieldNames.mat');
+
+numMouse = 0;
+
+for mouse = 3:length(cageDir)
+    
+    if cageDir(mouse).isdir
+        
+        numMouse = numMouse + 1;
+        
+        disp(['numMouse = ' num2str(numMouse)]);
+        
+        mouseName = cageDir(mouse).name;      % select the animal folder to analyze
+        mouseFolder = [cageFolder '/' mouseName];
+        cd(mouseFolder);
+        %[pathname animalName] = fileparts(mouseFolder);
+        mouseDir = dir;
+        
+        numSessions = 0;
+        
+        for a = 3:length(mouseDir) % for each day of imaging in this animal's dir
+            
+            if mouseDir(a).isdir
+                
+                dayPath = [mouseFolder '/' mouseDir(a).name '/'];
+                
+                cd(dayPath); % go to this day of imaging
+                
+                dayDir = dir;
+                
+                for b = 3:length(dayDir);   % for each file in this day (now, folder with tif)
+                    if dayDir(b).isdir
+                        %% NEED TO ADD NEW LEVEL FOR TIF IN FOLDER FOR MOTION CORRECTION
+                        
+                        % see if this file is on the dataFileArray TIF list (and if so, what
+                        % row?)
+                        filename = [dayDir(b).name '.tif'];
+                        
+                        filename = filename(1:(strfind(filename, '.tif')+3));
+                        
+                        rowInd = find(strcmp(filename, dataFileArray(:,1)));
+                        
+                        if isempty(rowInd)
+                            filename2 = [filename ''''];
+                            rowInd = find(strcmp(filename2, dataFileArray(:,1)));
+                        end
+                        
+                        % if it is in list, then process data
+                        
+                        if rowInd
+                            
+                            basename = filename(1:(strfind(filename, '.tif')-1));
+                            cd([dayPath basename]);
+                            
+                            % find the frame avg calcium dF/F
+                            
+                            %% Import the image stack
+                            
+                            frameNum = 0;
+                            
+                            %filename = [dayDir(b).name '.tif'];
+                            tifpath = [dayPath dayDir(b).name '/' filename]; %[dayDir(b).name '.tif']];
+                            % NOTE: build the tifpath different because of the extra
+                            % folder layer for motion correction
+                            
+                            disp(['Processing image stack for ' filename]);
+                            tic;
+                            
+                            % see how big the image stack is
+                            stackInfo = imfinfo(tifpath);  % create structure of info for TIFF stack
+                            sizeStack = length(stackInfo);  % no. frames in stack
+                            width = stackInfo(1).Width; % width of the first frame (and all others)
+                            height = stackInfo(1).Height;  % height of the first frame (and all others)
+                            
+                            clear stackInfo;    % clear this because it might be big
+                            
+                            % extract number of imaging channels and only take green for
+                            % Ca++ activity
+                            %                 numImCh = dataFileArray{rowInd, 11};
+                            
+                            % NOTE: took prev. out because manually removed other chan
+                            numImCh = 1;
+                            
+                            % this is to preallocate tifstack for speed
+                            numFrames = length(1:numImCh:sizeStack);
+                            tifStack = zeros(width, height, numFrames);
+                            
+                            % now load all tifs in stack into 3D matrix
+                            for i=1:numImCh:sizeStack
+                                frame = imread(tifpath, 'tif', i); % open the TIF frame
+                                frameNum = frameNum + 1;
+                                tifStack(:,:,frameNum)= frame;  % make into a TIF stack
+                                %imwrite(frame*10, 'outfile.tif')
+                            end
+                            toc;
+                            
+                            
+                            frameAvg = mean(mean(tifStack,1),2);  % take average for each frame
+                            frameAvg = squeeze(frameAvg);  % just remove singleton dimensions
+                            % frameAvg = frameAvg - mean(frameAvg, 1);    % just subtract mean
+                            
+                            % now doing this with the running mean (runmean from Matlab
+                            % Cntrl)
+                            
+                            runAvg = runmean(frameAvg, 100);    % using large window to get only shift in baseline
+                            
+                            frameAvgDf = (frameAvg - runAvg)./runAvg;
+                            
+                            
+                            %% load in the continuous signals for linear
+                            % regression
+                            
+                            cd(dayPath);
+                            
+                            x2 = binRead2pBatch(dataFileArray, rowInd);
+                            
+                            if dataFileArray{rowInd,14}==4
+                                whiskSig1 = x2(4,:);
+                                whiskSig2 = x2(5,:);
+                            else
+                                whiskSig1 = x2(5,:);
+                                whiskSig2 = x2(4,:);
+                            end
+                            
+                            % randy's script assumes BOT = 5, so make it so
+                            
+                            x2(5,:) = whiskSig1;
+                            x2(4,:) = whiskSig2;
+                            
+                            clear whiskSig1 whiskSig2;
+                            
+                            %% perform linear regression using randy's
+                            % script
+                            
+                            mdl = RegressClayCalcium(x2, frameAvgDf);
+                            
+                            clear x2 frameAvgDf;
+                            
+                            % get tif file name
+                            fn = filename(1:(strfind(filename, '.tif')-1));
+                            
+                            % save stuff to output struc (need to increment
+                            % numSessions)
+                            
+                            disp(['saving to struc mouse# ' num2str(numMouse) ' Session ' num2str(numSessions)]);
+                            
+                            linRegStruc.mouse(numMouse).session(numSessions).name = fn;
+                            linRegStruc.mouse(numMouse).session(numSessions).mdl = mdl;
+                            
+                            clear fn mdl;
+                            
+                        end  % END IF this TIF folder is in dataFileArray
+                    end % END IF this is a directory (dayDir(b).isdir)
+                end % END FOR loop looking through all files in this day's folder (for this animal)
+                
+            end   % END if isdir in home folder
+            
+        end  % END searching through all days in animal folder
+        
+        cd(mouseFolder);
+        
+        %clear batchDendStruc2hz batchDendStruc4hz batchDendStruc8hz;
+        
+    end     % end IF cond for mouseDir = folder
+end     % end FOR loop for all mouse folders in cageDir

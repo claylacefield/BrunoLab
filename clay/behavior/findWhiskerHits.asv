@@ -1,0 +1,24 @@
+function [shutTrig] = findWhikserHits()
+
+[filename pathname] = uigetfile('*.dat', 'Select a .dat file of shutter triggers to read');
+filepath = [pathname filename];
+
+[fid, message] = fopen(filepath, 'r', 'b');
+
+headerSize = SkipDATHeader(fid);
+
+whiskerSignal = fread(fid, '*float32');
+
+x=0;
+whiskerHits = [];
+
+for i = 2:(length(shutter)-1)
+    if (whiskerSignal(i)>4.88) && ((whiskerSignal(i)-whiskerSignal(i-1))>0.05) && (abs(whiskerSignal(i)-whiskerSignal(i+1))<0.05)
+        x = x+1;
+        whiskerHits(x) = i; 
+    end
+end
+
+%shutTrig = shutTrig(301:3300);  % kluge for only saving times of acquired frames
+
+

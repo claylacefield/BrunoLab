@@ -1,0 +1,14 @@
+run("Image Sequence...", "open=[C:\\Documents and Settings\\Clay\\Desktop\\Mouse Vids\\image stacks\\test2\\test20000.bmp] number=10 starting=1 increment=1 scale=100 file= convert");
+setAutoThreshold();
+//run("Threshold...");
+setThreshold(50, 136);
+run("Threshold", "thresholded remaining black stack");
+run("Bandpass Filter...", "filter_large=4000 filter_small=8 suppress=None tolerance=5 autoscale saturate process");
+setThreshold(0, 0);
+run("Threshold", "thresholded remaining black stack");
+run("Bandpass Filter...", "filter_large=4000 filter_small=20 suppress=None tolerance=5 autoscale saturate process");
+resetMinAndMax();
+setAutoThreshold();
+setThreshold(0, 0);
+run("Threshold", "thresholded remaining black stack");
+run("Clear", "format=Bmp name=test2b start=0 digits=4 use");

@@ -1,0 +1,10 @@
+function [p] = LRT(data, fhandle1, fhandle2, params1, params2)
+
+% Likelihood Ratio Test
+%
+% Randy Bruno, August 2009
+
+lambda = likelihood(data, fhandle1, params1{:}) / likelihood(data, fhandle2, params2{:});
+statistic = -2 * log10(lambda);
+df = abs(length(params1) - length(params2));
+p = chi2cdf(statistic, df);

@@ -1,0 +1,25 @@
+function [psths] = PSTHbyStim(cluster, winstart, winend, Plots, binwidth)
+% PSTH Peri-stimulus time histograms for each stimulus applied.
+% PSTH(CLUSTER) plots PSTHs by stimulus for the spike data contained in cluster.
+% Randy Bruno, May 2003
+
+if nargin == 1
+    winstart = 150;
+    winend = 170;
+end
+
+if nargin < 5
+    
+
+ntrials = max(cluster(:,2)) + 1;
+
+cluster = RemoveNullSpikes(cluster);
+stimulus = cluster(:,3)';
+stimtypes = unique(stimulus);
+
+i = 0;
+for stim = stimtypes
+    i = i + 1;
+    subplot(length(stimtypes), 1, i);
+    PSTH(cluster(stimulus==stim, :), winstart, winend, stim);
+end

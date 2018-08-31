@@ -1,0 +1,229 @@
+function varargout = UnitTools(varargin)
+% UNITTOOLS M-file for UnitTools.fig
+%      UNITTOOLS, by itself, creates a new UNITTOOLS or raises the existing
+%      singleton*.
+%
+%      H = UNITTOOLS returns the handle to a new UNITTOOLS or the handle to
+%      the existing singleton*.
+%
+%      UNITTOOLS('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in UNITTOOLS.M with the given input arguments.
+%
+%      UNITTOOLS('Property','Value',...) creates a new UNITTOOLS or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before UnitTools_OpeningFunction gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to UnitTools_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Edit the above text to modify the response to help UnitTools
+
+% Last Modified by GUIDE v2.5 23-Jun-2003 18:06:22
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @UnitTools_OpeningFcn, ...
+                   'gui_OutputFcn',  @UnitTools_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin & isstr(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before UnitTools is made visible.
+function UnitTools_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to UnitTools (see VARARGIN)
+
+% Choose default command line output for UnitTools
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes UnitTools wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = UnitTools_OutputFcn(hObject, eventdata, handles)
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+% --- Executes during object creation, after setting all properties.
+function analysispopupmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to analysispopupmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc
+    set(hObject,'BackgroundColor','white');
+else
+    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
+end
+
+
+% --- Executes on selection change in analysispopupmenu.
+function analysispopupmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to analysispopupmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns analysispopupmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from analysispopupmenu
+
+% --- Executes on button press in LoadClusterButton.
+function LoadClusterButton_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadClusterButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[filename pathname OK] = uigetfile('*.cluster?', 'Select a cluster file to read');
+if (~OK) return; end
+filepath = fullfile(pathname, filename);
+handles.cluster = ReadCluster(filepath);
+set(handles.loadedFile, 'String', filepath);
+guidata(hObject,handles);
+
+% --- Executes on button press in LoadDATButton.
+function LoadDATButton_Callback(hObject, eventdata, handles)
+% hObject    handle to LoadDATButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[filename pathname OK] = uigetfile('*.dat', 'Select a dat file to read');
+if (~OK) return; end
+filepath = fullfile(pathname, filename);
+handles.cluster = ReadDAT(filepath);
+set(handles.loadedFile, 'String', filepath);
+guidata(hObject,handles);
+
+% --- Executes on button press in RunAnalysisButton.
+function RunAnalysisButton_Callback(hObject, eventdata, handles)
+% hObject    handle to RunAnalysisButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cluster = handles.cluster;
+analysis = get(handles.analysispopupmenu, 'Value');
+winStart = str2double(get(handles.winStart, 'String'));
+winEnd = str2double(get(handles.winEnd, 'String'));
+
+switch analysis
+    case 1
+        figure;
+        ISIhist(cluster);
+    case 2
+        figure;
+        acg(cluster);
+    case 3
+        figure;
+        PSTH(cluster, winStart, winEnd)
+    case 4
+        figure;
+        SpikesPerTrial(cluster, true);
+    case 5
+        AnalyzeCluster(cluster, winStart, winEnd);
+        subplot(2,2,1); title(get(handles.loadedFile, 'String'));
+    case 6
+        figure;
+        raster(cluster);
+    case 7
+        figure;
+        rasterbystim(cluster);
+    case 8
+        figure;
+        PSTHbyStim(cluster, winStart, winEnd);
+    case 9
+        figure;
+        PolarSpikes(cluster, winStart, winEnd);
+        title(sprintf([strrep(get(handles.loadedFile, 'String'), '\', '\\') '\n' get(get(gca, 'Title'), 'String')]));
+    case 10
+        figure;
+        PolarISIs(cluster, winStart, winEnd);
+    case 11
+        figure;
+        SpikeLatency(cluster, winStart, winEnd);
+end
+whitebg(gcf, 'w');
+orient landscape;
+plotedit('ON');
+set(gcf, 'Name', get(handles.loadedFile, 'String'));
+
+
+
+% --- Executes during object creation, after setting all properties.
+function winStart_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to winStart (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc
+    set(hObject,'BackgroundColor','white');
+else
+    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
+end
+
+
+
+function winStart_Callback(hObject, eventdata, handles)
+% hObject    handle to winStart (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of winStart as text
+%        str2double(get(hObject,'String')) returns contents of winStart as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function winEnd_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to winEnd (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc
+    set(hObject,'BackgroundColor','white');
+else
+    set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
+end
+
+
+
+function winEnd_Callback(hObject, eventdata, handles)
+% hObject    handle to winEnd (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of winEnd as text
+%        str2double(get(hObject,'String')) returns contents of winEnd as a double
+
+

@@ -1,0 +1,83 @@
+function [n, x] = PolarPlot(cluster, winstart, winend, nreps, Plots)
+
+% POLARPLOT(CLUSTER, WINSTART, WINEND, NREPS) creates a polar plot of
+% spikes collected during deflections of a whisker in various directions.
+% CLUSTER is the ordinary spike data table.
+% WINSTART and WINEND are the start and end of the response window in msecs.
+% NREPS is the number of repetitions per angle.
+% Randy Bruno, April 2003
+
+% convert stimulus codes to degrees
+stimulus = StimCodeToDegrees(cluster(:,3));
+stimuli = unique(stimulus);
+nStim = length(stimuli);
+
+switch nargin
+    case 1
+        winstart = 150;
+        winend = 170;
+    case 2
+        error('PolarPlot: winend must be specified if winstart is given')
+end
+
+if nargin < 4 | isempty(nreps)
+    nreps = (max(cluster(:,2)) + 1) / nStim;
+end
+
+if nargin < 5
+    Plots = true;
+end
+
+timestamp = cluster(:,4);
+
+spikes = stimulus(timestamp>=winstart & timestamp<winend);
+if (isempty(spikes))
+    n = zeros(nStim, 1);
+else
+    n = histc(spikes, stimuli);
+end
+n = n / nreps;
+% convert degrees to radians
+x = stimuli * pi / 180;
+
+% generate PSTHs
+maxCode = max(cluster(:,3));
+maximum = 0;
+for i = 1:nStim
+    subplot(nStim, 2, 2*i-1);
+    angle = stimuli(i);
+    code = -(angle/45 - maxCode);
+    subset = cluster(cluster(:,3)==code,:);
+    [PSTHn, bins] = PSTH(subset, winstart, winend, [], Plots);
+    if (Plots)
+        if (~isempty(subset))
+            maximum = max(maximum, max(PSTHn));
+        end
+        xlim([2 500]);
+        if (i < nStim)
+            set(gca, 'XTickLabel', '');
+            xlabel('');
+        end
+        if (i ~= round(nStim / 2))
+            ylabel('');
+        end
+        title(['angle = ', num2str(angle), '; stimCode = ', num2str(code)]);
+    end
+end
+
+if (Plots)
+    % put all PSTHs on same scale and indicate response window
+    for i = 1:nStim
+        subplot(nStim, 2, 2*i-1);
+        ylim([0 maximum]);
+        hold on;
+        area([winstart winstart winend winend], [0 maximum maximum 0], 'FaceColor', 'yellow', 'EdgeColor', 'none');
+        hold off;
+    end
+    
+    subplot(nStim, 2, linspace(2,nStim*2,nStim));
+    polar([x; x(1)], [n; n(1)]); %extra points are needed to prevent breaks in polar plot
+    set(findobj('Type','line'),'LineWidth',2);
+    plotedit('ON');
+end
+

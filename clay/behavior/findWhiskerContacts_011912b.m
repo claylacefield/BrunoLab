@@ -1,0 +1,96 @@
+function [stimTrig, whiskContact, firstContactArr] = findWhiskerContacts()
+
+% Clay 011912
+% col8@columbia.edu
+
+
+% sample frequency
+sf = 32000;
+
+%% FIND STIMULUS TRIGGERS
+% UI to choose and process a file of stimulus triggers
+[stimTrig] = findStimTrigs();   % gives cell array of stim triggers for each fread epoch
+
+
+%% now load in whisker signal DAT file
+[filename pathname] = uigetfile('*.dat', 'Select a .dat file of whisker signals to read');
+filepath = [pathname filename];
+
+[fid, message] = fopen(filepath, 'r', 'b');
+
+headerSize = SkipDATHeader(fid);
+
+%j = 0;
+whiskContacts = [];
+
+sizeA = sf*100;   % number of samples to read at a time (100s worth)
+
+while ~feof(fid)
+    whiskSig = fread(fid, sizeA,'*float32');      % read in only some chunk of data at a time
+    % note that fread pads last file chunk with zeros up to sizeA
+    
+    i = 1;  % increments sample points within file read epoch
+    j = 1;
+    %x = 0;  % increments stimulus trigger events
+    
+    whiskContactTemp = [];
+    
+ 
+    lowFbound = 50;
+    highFbound = 10000;
+    Nyquist = sf/2;
+    % filtWhiskSig = BandFilt(whiskSig, sf, lowFbound, highFbound);    % filter
+    whiskerSignal = fir1(30, [50 10000]/Nyquist);    % what filter order?
+    
+    % select out regions during stimulus epoch to look for whisker contacts
+    stimEpochStart = stimTrig{j} + 12200;   % start looking for whisker contacts after motor artifact should have ended
+    stimEpochEnd = stimEpochStart + 38000;  % and stop just before the end motor artifact
+    
+    
+    %% and for each stimulus epoch, look for whisker contacts
+    
+    whiskContact = [];
+    firstContactArr = [];
+    
+    for k = 1:length(stimTrig{j})   % so for each stimulus trigger in the corresponding stimulus epoch
+        
+        whiskTrial = [];
+        whiskTrial = filtWhiskSig(stimEpochStart(k):stimEpochEnd(k));  % isolate whisker signal for this stimulus trial (either type)
+        % NOTE that this might fall outside of the whisker read epoch so
+        % may generate error
+        
+        whiskContactTrial = LocalMinima(whiskTrial, 500, -0.3);  % detects peaks using LocalMinima (Buzsaki/Harris(kmf))
+        whiskContactTrial = whiskContactTrial + stimEpochStart(k);  % adjust indices to make relative to whole recording (not just this trial)
+        %NOTE: that this is slightly misaligned but shouldn't matter much
+        
+        % now concatenate the latest whisker contacts with the previous
+        if length(whiskContactTrial)>0
+            whiskContact = [whiskContact; whiskContactTrial];   % vertcat
+            
+            firstContact = whiskContactTrial(1);  % just isolates the first whisker contact in the stimulus trial
+            firstContactArr = [firstContactArr; firstContact];
+        end
+        
+    end
+    
+    j = j + 1;
+    
+end
+
+fclose('all');
+
+
+%% now plot the whisker signal with putative whisker contacts
+
+t=1:length(whiskerSignal);
+
+figure;
+plot(whiskerSignal);
+hold on;
+plot(t(whiskContact),whiskerSignal(whiskContact), 'r.');
+plot(t(firstContactArr),whiskerSignal(firstContactArr), 'g.');
+
+clear whiskerSignal;
+
+
+

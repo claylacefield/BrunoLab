@@ -1,0 +1,52 @@
+function OverlayVm(filepath, duration, stimOnset, )
+% OVERLAYVM(FILEPATH) Average a continuous signal (recorded by
+% ntrode.vi) separately for each stimulus condition.
+%
+% Randy Bruno, June 2003
+
+if (nargin == 0)
+    [filename pathname OK] = uigetfile('*.dat', 'Select continuous signal file');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+    duration = input('Trial duration in msec: ');
+end
+
+stimuli = ReverseArray(GetStimCodes(filepath, duration));
+
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+nScans = SAMPLERATE * (duration / 1000);
+recSize = (nScans + 1) * 4; %in bytes
+
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+n = zeros(size(stimuli));
+average = zeros(nScans, length(stimuli));
+
+minimum = 0;
+maximum = 0;
+newplot;
+while (~feof(fid))
+    stimulus = fread(fid, 1, 'float32');
+    if (feof(fid)) break; end;
+    signal = fread(fid, nScans, 'float32');
+    i = PositionInArray(stimuli, stimulus);
+    subplot(length(n), 1, i);
+    line(linspace(0, duration, nScans), signal * SCALINGFACTOR);
+    minimum = min([minimum min(signal)]);
+    maximum = max([maximum max(signal)]);
+end
+
+for i = 1:length(n)
+    subplot(length(n), 1, i);
+    if (nargin == 3)
+        line([stimOnset stimOnset], [minimum, maximum] * SCALINGFACTOR, 'Color', 'green');
+    end
+    title(['stimulus: ', num2str(stimuli(i))])
+    ylim([minimum maximum] * SCALINGFACTOR);
+end
+xlabel('msec');
+set(gcf, 'Name', filepath);
+
+fclose(fid);

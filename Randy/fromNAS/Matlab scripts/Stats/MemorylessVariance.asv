@@ -1,0 +1,14 @@
+function newvar = MemorylessVariance(avg, oldvar, x, i)
+% MEMORYLESSVARIANCE Compute a variance without having to load all the
+% observations into memory (see MEMORYLESSAVERAGE)
+%
+% MEMORYLESSVARIANCE(AVG, OLDVAR, X, I)
+% AVG: the mean must have been pre-computed (i.e., via MEMORYLESSAVERAGE)
+% OLDVAR: the last value of the running variance
+% X: the new item to be included in the variance
+% I: the non-zero-indexed element # of X
+% Randy Bruno, January 2013
+
+%newavg = x/i + ((i-1) * oldavg / i);
+%newvar = (avg-x) .^ 2 / i + ((i-1) * oldvar / i);
+newvar = oldvar*(i-1) + (avg-x).^2) / double(i);

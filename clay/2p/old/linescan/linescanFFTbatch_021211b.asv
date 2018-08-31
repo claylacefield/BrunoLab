@@ -1,0 +1,54 @@
+function [linescanFFTstruc] = linescanFFTbatch(day);
+
+% clay 082610
+% script for assessing gamma power from ANNINE VSD linescans (during
+% whisker stimulation)
+
+%%
+
+% user interface to select TIF stack of linescans for processing
+% [filename pathname OK] = uigetfile('*.tif', 'Select image file');
+%
+% if (~OK)
+%     return; end
+% filepath = [pathname, filename];
+
+%%
+
+folder = ['\\10.112.43.36\Public\clay\imaging\2p\' day];
+
+cd(folder);
+
+currDir = dir;
+
+numRec=0;
+
+%%
+for j = 3:length(currDir);
+    if currDir(j).bytes > 1e7;
+        filename = currDir(j).name;
+        filepath = [folder '\' currDir(j)];
+        [pkOffset, pkOnset, pkGam, meanPixVal, powspec, f, gamSum, delF, yMat, spatMeanMat, filepath] = linescanFFT2(filepath, filename);
+    
+    linescanFFTstruc(j-2).name = filename;
+    linescanFFTstruc(j-2).pkOffset = pkOffset;
+    linescanFFTstruc(j-2).pkOnset = pkOnset;
+    linescanFFTstruc(j-2).pkGam = pkGam;
+    linescanFFTstruc(j-2).meanPixVal = meanPixVal;
+    linescanFFTstruc(j-2).powspec = powspec;
+    linescanFFTstruc(j-2).f = f;
+    linescanFFTstruc(j-2).gamSum = gamSum;
+    linescanFFTstruc(j-2). = ;
+    
+    end  % end IF for TIFs big enough to be linescans
+
+end   % END loop through 2p directory of recording days
+
+% What I generally want to output for group analysis:
+% avg whisker response: (delF/F),
+% average luminosity:
+% max stim onset (70-120) and offset (175-225) response amplitudes
+% avg power spectrum: 2*abs(yAvg(1:NFFT/2))
+%
+% note that time values are 2ms/line, thus 512ms/frame, and each index is
+% 2ms

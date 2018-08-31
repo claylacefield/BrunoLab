@@ -1,0 +1,33 @@
+
+
+
+%%
+
+frameNum = 0;
+
+if nargin < 1
+    [filename pathname] = uigetfile('*.tif', 'Select a multi-page TIFF to read');
+filepath = [pathname filename];
+end
+
+% see how big the image stack is
+stackInfo = imfinfo(filepath);  % create structure 
+sizeStack = length(stackInfo);  % no. frames in stack
+width = stackInfo(1).Width;
+height = stackInfo(1).Height;
+
+clear stackInfo;
+
+tifStack = zeros(256, 256, sizeStack);
+%%
+
+for i=1:3:sizeStack
+    frame = imread(filepath, 'tif', i); % open the TIF frame
+    frameNum = frameNum + 1;
+    tifStack(:,:,frameNum)= frame;
+    imwrite(frame, 'outfile.tif')
+end
+
+
+    
+    

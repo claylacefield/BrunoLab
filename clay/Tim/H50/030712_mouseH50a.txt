@@ -1,0 +1,159 @@
+animal number =
+030712_mouseH50a
+box number =
+1
+session length =
+34
+START time
+12:45
+initial rewarded direction (1 = top, 2 = bot)
+1
+reward amount/duration = 
+19
+program type = fast, reversal midway in session
+headfix_fastReversal_012612a.pde
+BEGIN DATA
+lever press start
+9309
+lever press start
+13936
+lever press start
+13979
+lever press start
+34246
+stim trigger (bottom/rewarded)
+34647
+REWARD!!!
+35567
+lever press start
+45291
+stim trigger (bottom/rewarded)
+45692
+REWARD!!!
+46291
+lever press start
+49968
+stim trigger (bottom/rewarded)
+50369
+REWARD!!!
+51464
+lever press start
+54548
+stim trigger (top)
+54949
+unrewarded lever press
+55634
+lever press start
+163521
+lever press start
+311072
+lever press start
+311100
+lever press start
+532625
+stim trigger (bottom/rewarded)
+533026
+REWARD!!!
+533315
+lever press start
+637282
+lever press start
+638065
+lever press start
+814113
+lever press start
+814222
+lever press start
+817381
+lever press start
+817587
+lever press start
+817769
+lever press start
+817825
+stim trigger (bottom/rewarded)
+818226
+REWARD!!!
+818514
+lever press start
+856026
+lever press start
+856056
+lever press start
+856130
+lever press start
+856407
+lever press start
+856487
+lever press start
+856698
+lever press start
+856752
+lever press start
+856999
+lever press start
+857830
+lever press start
+858113
+lever press start
+875829
+stim trigger (bottom/rewarded)
+876230
+REWARD!!!
+876647
+lever press start
+880712
+lever press start
+880747
+lever press start
+881103
+lever press start
+881470
+lever press start
+882937
+lever press start
+882990
+lever press start
+883099
+lever press start
+883163
+lever press start
+885050
+stim trigger (top)
+885451
+unrewarded lever press
+885730
+Reversal
+1020000
+lever press start
+1023372
+stim trigger (bottom/rewarded)
+1023773
+REWARD!!!
+1024787
+lever press start
+1559513
+lever press start
+1559616
+lever press start
+1587026
+lever press start
+1587153
+lever press start
+1587261
+lever press start
+1587489
+lever press start
+1588941
+lever press start
+1588980
+lever press start
+1589075
+lever press start
+1613297
+lever press start
+1617373
+lever press start
+1621873
+END time
+13:19

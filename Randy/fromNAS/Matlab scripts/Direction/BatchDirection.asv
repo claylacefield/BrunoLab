@@ -1,0 +1,95 @@
+% Batch process a list of files contained in a spreadsheet databases.
+% General Directional Analyses
+% Randy Bruno, October 2004
+
+% fix answers so don't have to be 3 digits
+answers = str2num(cell2mat(inputdlg({'Duration (msec)', 'Stimulus onset (msec)', 'Window Start (msec)', 'Window End (msec)'}, 'Parameters for polar plots', 1, {'500', '145', '150', '350'})));
+data = xlsreadastext('C:\Documents and Settings\Randy Bruno\Desktop\analyses\fentanyl.xls'); %read data
+attach;
+
+n = length(Pwfile);
+
+pspmean = zeros(n, 1);
+psppref = zeros(n, 1);
+spontaneous = zeros(n, 1);
+spikesmean = zeros(n, 1);
+spikespref = zeros(n, 1);
+bestAngle = zeros(n, 1);
+avgVectorAngle = zeros(n, 1);
+avgVectorMag = zeros(n, 1);
+avgpsp = zeros(8,1);
+avgspikes = zeros(8,1);
+ravgpsp = zeros(8,1);
+ravgspikes = zeros(8,1);
+ncells = 0;
+nspikingcells = 0;
+for i = 1:n
+    disp(['i = ', num2str(i), ': ', Pwfile{i}]);
+    if (~isempty(Pwfile{i}) & ~strcmp(Pwfile{i}, 'NA') & isfinite(medfilt(i)) & ~strcmp(fp(i), 'FS'))
+        % if there is a PW file listed and the data was filterable...
+            
+        [psp, nspikes, stimuli, spon] = PolarPlots(Pwfile{i}, answers(1), answers(2), answers(3), answers(4), false);
+        stimuli = stimuli';
+        
+        ncells = ncells + 1;
+       
+        pspmean(i) = mean(psp);
+        psppref(i) = max(psp);
+        spontaneous(i) = spon;
+        spikesmean(i) = mean(nspikes);
+        spikespref(i) = max(nspikes);
+        
+        % correct for stimulator rotation if necessary
+        if (~isnan(rotated(i)) & rotated(i))
+            shift = rotated(i) / 45;
+            psp = circshift(psp, shift);
+            nspikes = circshift(nspikes, shift);
+        end         
+        
+        % determine best angle and mean veactor
+        bestAngle(i) = stimuli(psp==max(psp));
+        [avgVectorAngle(i), avgVectorMag(i)] = meanVector(psp, stimuli);
+        
+        %average polar plots
+        avgpsp = MemorylessAverage(avgpsp, psp, ncells);
+        if (max(nspikes) > 0)
+            nspikingcells = nspikingcells + 1;
+            avgspikes = MemorylessAverage(avgspikes, nspikes, nspikingcells);
+            bestAngleSpikes = stimuli(nspikes==max(nspikes));
+            ravgspikes = MemorylessAverage(ravgspikes, circshift(nspikes, -bestAngleSpikes/45), nspikingcells);
+        end
+        figure(1);
+        subplot(2, 2, 1);
+        polar(DegreesToRadians([stimuli; stimuli(1)]), [avgpsp; avgpsp(1)]);
+        title(['Average PSP polar plot of excitatory barrel cortex cells under fentanyl (n = ' num2str(ncells) ')']);
+        subplot(2, 2, 2);
+        polar(DegreesToRadians([stimuli; stimuli(1)]), [avgspikes; avgspikes(1)]);
+        title(['Average spikes polar plot of excitatory barrel cortex cells under fentanyl (n = ' num2str(nspikingcells) ')']);
+        drawnow;
+        
+        %average polar plots aligned to best direction
+        ravgpsp = MemorylessAverage(ravgpsp, circshift(psp, -bestAngle(i)/45), ncells);
+        figure(1);
+        subplot(2, 2, 3);
+        polar(DegreesToRadians([stimuli; stimuli(1)]), [ravgpsp; ravgpsp(1)]);
+        title(['Rotated to best angle']);
+        subplot(2, 2, 4);
+        polar(DegreesToRadians([stimuli; stimuli(1)]), [ravgspikes; ravgspikes(1)]);
+        title(['Rotated to best angle']);
+        drawnow;
+    else
+        pspmean(i) = NaN;
+        psppref(i) = NaN;
+        spontaneous(i) = NaN;
+        spikesmean(i) = NaN;
+        spikespref(i) = NaN;
+        bestAngle(i) = NaN;
+        avgVectorAngle(i) = NaN;
+        avgVectorMag(i) = NaN;
+    end
+end
+
+[sumAngle, sumMag] = meanVector(excise(avgVectorMag), excise(avgVectorAngle))
+
+detach;
+clear answers PWfile filtersize psp nspikes spon

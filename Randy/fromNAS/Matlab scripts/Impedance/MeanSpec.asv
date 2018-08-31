@@ -1,0 +1,7 @@
+function Y = MeanSpec(X)
+
+m = size(X);
+n = m(3);
+if n != 
+
+Y = reshape(mean(X, 2), 1, n);

@@ -1,0 +1,35 @@
+;; Reorg pass #1:
+;; Reorg function #0
+;; 1 insns needing delay slots
+;; 1 got 1 delays
+;; Reorg function #1
+;; 0 insns needing delay slots
+;; 
+;; Reorg pass #2:
+;; Reorg function #0
+;; 0 insns needing delay slots
+;; 
+;; Reorg function #1
+;; 0 insns needing delay slots
+;; 
+
+;; Function mexVersion
+
+(note 2 0 3 "" NOTE_INSN_DELETED)
+
+(note 3 2 4 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 4 3 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 7 "" NOTE_INSN_DELETED)
+
+(insn 7 6 11 (set (reg:SI 2 %g2)
+        (high:SI (symbol_ref:SI ("version")))) 85 {*sethi_si} (nil)
+    (expr_list:REG_EQUIV (high:SI (symbol_ref:SI ("version")))
+        (nil)))
+
+(insn 11 7 18 (use (reg/i:SI 24 %i0)) -1 (insn_list 10 (nil))
+    (expr_list:REG_DEAD (reg/i:SI 24 %i0)
+        (nil)))
+
+(note 18 11 0 "" NOTE_INSN_DELETED)

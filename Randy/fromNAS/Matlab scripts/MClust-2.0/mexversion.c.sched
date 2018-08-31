@@ -1,0 +1,25 @@
+
+;; Function mexVersion
+
+(note 2 0 3 "" NOTE_INSN_DELETED)
+
+(note 3 2 4 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 4 3 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 7 "" NOTE_INSN_DELETED)
+
+(insn 7 6 10 (set (reg:SI 69)
+        (high:SI (symbol_ref:SI ("version")))) 85 {*sethi_si} (nil)
+    (expr_list:REG_EQUAL (high:SI (symbol_ref:SI ("version")))
+        (nil)))
+
+(insn 10 7 11 (set (reg/i:SI 24 %i0)
+        (mem:SI (lo_sum:SI (reg:SI 69)
+                (symbol_ref:SI ("version"))))) 106 {*movsi_insn} (insn_list 7 (nil))
+    (expr_list:REG_DEAD (reg:SI 69)
+        (nil)))
+
+(insn 11 10 0 (use (reg/i:SI 24 %i0)) -1 (insn_list 10 (nil))
+    (expr_list:REG_DEAD (reg/i:SI 24 %i0)
+        (nil)))

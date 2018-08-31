@@ -1,0 +1,26 @@
+animal number =
+040512_mouseH51
+box number =
+2
+session length =
+30
+START time
+13:6
+rewarded direction (1 = top, 2 = bot)
+2
+reward amount/duration = 
+13
+program type = slow
+BEGIN DATA
+lever press start
+1467687
+stim trigger (bottom/rewarded)
+1468088
+lever press start
+1471038
+stim trigger (top)
+1471439
+unrewarded lever press
+1471864
+END time
+13:30

@@ -1,0 +1,52 @@
+
+
+minBin = 2;  % time base over which to calculate histograms
+binFracMouse= zeros(10, 20/minBin);
+bin = minBin*60000;      
+
+for i=1:length(spatDiscStruc)
+    rewStim=spatDiscStruc(i).rewStim;
+    rewStim2(i)=length(rewStim);
+    reward=spatDiscStruc(i).reward;
+    numRew(i)=length(reward);
+    fracRew(i)=length(reward)/length(rewStim);
+    unrewStim=spatDiscStruc(i).unrewStim;
+    unrewStim2(i)=length(unrewStim);
+    unrewLev=spatDiscStruc(i).unrewLev;
+    numUnrewLev(i)=length(unrewLev);
+    fracUnrewLev(i)=length(unrewLev)/length(unrewStim);
+    numIRbrk(i)=length(rewStim)+length(unrewStim);
+
+    % this section plots histograms of performance over the entire behavior
+    % period, per minute (added ~3/29/10)
+    % NOTE: previous versions calculated more of a cumulative discInd
+
+    for j=1:(20/minBin)        % for each time segment (defined at start) of the 20 min trial
+        n=0; m=0;
+        binRew = find(reward >= (j-1)*bin & reward <= j*bin);   % gives 
+        binRewStim = find(rewStim >= (j-1)*bin & rewStim <= j*bin);
+        n = length(binRew);
+        m = length(binRewStim);
+        binFrac(j) = n/m;
+
+        p=0; q=0;
+        binUnrew = find(unrewLev >= (j-1)*bin & unrewLev <= j*bin);
+        binUnrewStim = find(unrewStim >= (j-1)*bin & unrewStim <= j*bin);
+        p = length(binUnrew);
+        q = length(binUnrewStim);
+        binFrac2(j) = p/q;
+        binFrac3(j)= binFrac(j)/binFrac2(j);
+
+    end
+
+    binFracMouse(i, :)= binFrac3;
+    figure;
+    bar(binFracMouse(i,:));
+end
+
+% stim=[spatDiscStruc.stim];
+% figure; hist(stim);
+% rew=[spatDiscStruc.reward];
+% figure; hist(rew);
+
+discInd= fracRew./fracUnrewLev;

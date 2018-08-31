@@ -1,0 +1,116 @@
+function [amp, rt, peaktime, tau, latency, tentime, WHH] = MeasurePSP(x, y, PLOT, winend, latency, PSPend)
+
+% Measures various parameters of a PSP.
+% x: vector of times in msecs, where time 0 is the start of some event
+% y: mV at corresponding times
+% PLOT
+% winend: latest anticipated peaktime (~15 for STAs, 30 for PSPs)
+% onset/offset: calling routine can specify onset and offset values instead
+% of allowing the user to pick them graphically
+%
+% amp: amplitude in mV
+% rt: 20-80% rise-time
+% peaktime: time of PSP peak
+% tau: decay time constant
+% latency: user-specified latency
+% tentime: automatically calculated latency to 10%
+% WHH: width at half-height
+%
+% RMB, updated 9/2010
+
+if nargin < 3
+    PLOT = false;
+end
+
+SCANRATE = 32000;
+SCANSPERMS = SCANRATE / 1000;
+
+%if nargin < 5
+if nargin < 10
+    % ask user to determine latency
+    h = figure;
+    plot(x(x > -10), y(x > -10));
+    xlim([-10 max(x)]);
+    title('Please click to indicate onset');
+    [latency, junk] = ginput(1);
+    
+    % ask user to determine end of PSP
+    title('Please click to indicate offset');
+    [PSPend, junk] = ginput(1);
+    close(h);
+end
+
+% get the first winend ms (post-event)
+xy = y(x > 0 & x < PSPend); %winend);
+xx = x(x > 0 & x < PSPend); %winend);
+
+% find the peak time in ms
+peakval = max(xy);
+peaktime = xx(xy==peakval); 
+peaktime = peaktime(1);
+
+% determine baseline (1/2 ms just before onset) and amplitude
+baseline = median(y(x > latency - latency & x < latency));
+amp = peakval - baseline;
+
+% determine 20-80% risetime by working backwards from the peak
+twentyval = (amp * 0.2) + baseline; 
+eightyval = (amp * 0.8) + baseline;
+sig = -ReverseArray(xy(xx < peaktime));
+
+eightytime = threshold(sig, -eightyval, length(sig)) / SCANSPERMS;
+eightytime = peaktime - eightytime;
+
+twentytime = threshold(sig, -twentyval, length(sig)) / SCANSPERMS;
+twentytime = peaktime - twentytime;
+rt = eightytime - twentytime;
+
+% automatically compute a latency based on a 10% rise criteria
+tenval = (amp * 0.1) + baseline;
+tentime = threshold(sig, -tenval, length(sig)) / SCANSPERMS;
+tentime = peaktime - tentime;
+
+% determine when signal has returned from peak back to baseline
+xy = y(x > peaktime);
+xx = x(x > peaktime);
+%PSPend = xx(xy <= baseline);
+%if isempty(PSPend)
+
+%    PSPend = max(xx);
+%else
+%    PSPend = PSPend(1);
+%end
+
+% between peak and end of PSP, fit exponential decay function
+% add baseline value at +1000 ms to force function to fit back to baseline
+% (Moritz suggestion)
+%xy = [y(x > peaktime & x < PSPend) baseline];
+%xx = [x(x > peaktime & x < PSPend) 1000];
+% [tau, b] = FitDecay(xx-peaktime, xy, PLOT);
+tau = NaN;
+b = NaN;
+
+% determine Width at Half Height (WHH)
+halfHeight = (amp * 0.5) + baseline;
+sig = y(x > latency & x < PSPend);
+%fiftytime1 = threshold(sig, halfHeight, SCANSPERMS * 2) / SCANSPERMS + latency;
+%fiftytime2 = PSPend - threshold(ReverseArray(sig), halfHeight, SCANSPERMS * 2) / SCANSPERMS;
+%WHH = fiftytime2(1) - fiftytime1(1);
+
+if PLOT
+    h=gcf;
+    figure;
+    plot(x,y);
+    line([twentytime eightytime], [twentyval eightyval], 'Color', 'r');
+    line([peaktime peaktime], [baseline amp+baseline], 'Color', 'r');
+%     line(x, DecayFunction(b, x-peaktime), 'Color', 'r');
+    line([fiftytime1(1) fiftytime1(1)+WHH], [halfHeight halfHeight], 'Color', 'b');
+    ylim([min(y) peakval*1.1]);
+    title(['amp = ' num2str(amp) ...
+           ', 20-80 rt = ' num2str(rt) ...
+           ', peaktime = ' num2str(peaktime) ...
+           ', tau = ' num2str(tau) ...
+           ', user latency = ' num2str(latency) ...
+           ', auto latency = ' num2str(tentime)]);
+    figure(h);
+end

@@ -1,0 +1,12 @@
+function P = Spec(x)
+
+% WZ February 2008
+%
+% Given vector, return fft for frequencies >= 0.
+
+
+P = fft(x);
+
+n = length(P);
+n = ceil(n / 2);
+P = P(1:n);

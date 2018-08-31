@@ -1,0 +1,39 @@
+function [paramEsts] = FitMixtureOf3Normals(x)
+
+% Fits a mixture of two normals.
+% Randy Bruno, August 2009
+
+pdf_normmixture3 = @(x,p1,p2,mu1,mu2,mu3,sigma1,sigma2,sigma3) ...
+                        p1*normpdf(x,mu1,sigma1) + p2*normpdf(x,mu2,sigma2) ...
+                        + (1-p1-p2)*normpdf(x,mu3,sigma3);
+
+% initial guesses
+pStart = .33; % initially equal mixture
+muStart = quantile(x,[1/6 3/6 5/6])'; % initially normals centered on quantiles
+sigmaStart = sqrt(var(x)/3); % initially equal stddev
+start = [pStart pStart muStart sigmaStart sigmaStart sigmaStart];
+
+lb = [0 0 -Inf -Inf -Inf 0 0 0];
+ub = [1 1 Inf Inf Inf Inf Inf Inf];
+
+% fits the model
+options = statset('MaxIter',600, 'MaxFunEvals',1200);
+paramEsts = mle(x, 'pdf',pdf_normmixture3, 'start',start, ...
+                          'lower',lb, 'upper',ub, 'options',options);
+
+% plots a histogram and fit
+nbins = length(x) / 5;
+nbins = min(100, nbins);
+if min(x) > 0
+    bins = linspace(0.9*min(x),1.1*max(x),nbins);
+else
+    bins = linspace(1.1*min(x),1.1*max(x),nbins);
+end
+binsize = bins(2)-bins(1);
+h = bar(bins,histc(x,bins)/length(x),'histc');
+set(h,'FaceColor',[.9 .9 .9]);
+pdfgrid = binsize * pdf_normmixture3(bins,paramEsts(1),paramEsts(2),paramEsts(3),paramEsts(4),paramEsts(5),paramEsts(6),paramEsts(7),paramEsts(8));
+% pdfgrid = binsize * paramEsts(1)*normpdf(bins,paramEsts(2),paramEsts(4));
+% hold on; plot(bins,pdfgrid,'-'); hold off
+% pdfgrid = binsize * (1-paramEsts(1))*normpdf(bins,paramEsts(3),paramEsts(5));
+hold on; plot(bins,pdfgrid,'-'); hold off

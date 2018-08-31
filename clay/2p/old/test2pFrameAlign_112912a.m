@@ -1,0 +1,31 @@
+% some test code for aligning 2p calcium signals with behavioral signals
+
+
+frameTimeBegin = frameTrig(1);
+frameTilEnd = length(galvoSig)-frameTrig(length(frameTrig))-1;
+sigLength = length(galvoSig)- frameTilEnd - frameTimeBegin;
+framesWind = frameTimeBegin:frameTrig(length(frameTrig));
+
+
+
+% Trying to interpolate the frame times to align with behav signals
+
+% rsDf = interp(frameAvgDf2, 500);
+% (this basically works but I think that the frame rate isn't exactly 2Hz)
+
+% fa2 = interp1(frameAvg, 1:0.002:(length(frameAvg)-1));
+% (same problem)
+
+
+% rsDf = resample(frameAvgDf2, 4, 2);
+% (but this gives a "too many input arguments" error)
+% (also, it is supposed to have a problem at edges, i.e. begin and end)
+
+% fa2 = interp1(frameAvg, 1:(length(galvoSig)));
+% (this makes it the total length right, but the signal is only the same
+% fraction of this)
+
+
+
+
+

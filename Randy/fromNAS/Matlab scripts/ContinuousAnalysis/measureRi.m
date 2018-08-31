@@ -1,0 +1,111 @@
+function [Ri, tau] = measureRi(filepath, duration, stimOnset, ssstart, ssend, recordlist)
+
+% MEASURERI(FILEPATH, DURATION, STIMONSET, SSSTART, SSEND)
+% Measure input resistance and tau of a patched cell in response to
+% hyperpolarizing pulses.
+%
+% Assumes data is collected with ntrode.vi
+%
+% INPUTS
+% filepath: string specifying the path of the file to measure
+% duration: duration of records in msecs
+% stimOnset: time of pulse onset in msecs
+% ssstart: start of window for measuring steady state
+% ssend: end of window for measuring steady state
+%
+% OUTPUTS
+% Ri: input resistance in Mohms
+% tau: tau of fitted decay function in msecs
+%
+% Randy Bruno, February 2004
+
+if (nargin < 1)
+    [filename pathname OK] = uigetfile('*.dat', 'Select continuous signal file');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+end
+
+if (nargin < 5)
+    answers = inputdlg({'Duration (ms)', 'Pulse Onset (ms)', 'Steady state start (ms)', 'Steady state end (ms)'}, ...
+        'Parameters for measuring Ri', 1, {'200', '50', '100', '150'});
+    duration = str2num(answers{1});
+    stimOnset = str2num(answers{2});
+    ssstart = str2num(answers{3});
+    ssend = str2num(answers{4});   
+end
+
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+nScans = SAMPLERATE * (duration / 1000);
+
+if nargin < 6
+    nrecs = GetNumberOfRecords(filepath, duration);
+    recordlist = 1:nrecs;
+end
+
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+average = zeros(nScans, 1);
+laststim = NaN;
+x = linspace(0, duration, nScans);
+i = 0;
+for trial = recordlist
+    [stimcode, data] = GetRecord(fid, headerSize, duration, trial-1);
+    if (~isnan(laststim) && laststim ~= stimcode)
+        disp(trial);
+        disp(laststim);
+        disp(stimcode);
+        errordlg('Successive stimulus codes do not match. Duration parameter may be improperly set, or the specified file may not be a series of hyperpolarizing pulses.');
+        return
+    end
+    if (stimcode > -821 || stimcode < -849)
+        errordlg(['Stimcode ' num2str(stimcode) ' does not indicate hyperpolarizing pulse.']);
+        return
+    end
+    laststim = stimcode;
+    i = i + 1;
+    average = MemorylessAverage(average, data, i);
+end
+average = average * SCALINGFACTOR;
+
+plot(x, average);
+xlabel('msec');
+ylabel('mV');
+
+baseline = mean(average(x < stimOnset));
+line([min(x) max(x)], [baseline baseline], 'LineStyle', '--', 'Color', 'r');
+steadystate = mean(average(x > ssstart & x < ssend));
+line([min(x) max(x)], [steadystate steadystate], 'LineStyle', '--', 'Color', 'r');
+
+if stimcode > -830 && stimcode < -820
+    dA = -(stimcode + 820) / 10^10; % change in amps
+end
+if stimcode > -850 && stimcode < -840
+    dA = -(stimcode + 840) / 10^10; % change in amps
+end
+dV = (baseline - steadystate) / 1000; % change in volts
+Ri = signif(dV / dA / 10^6, 0);
+
+excerpt = x(x > (stimOnset + 0.2) & x < ssend);
+
+% calculate capacitance
+dV63 = -dV * 0.63 * 1000; %threshold voltage change in mV
+pulse = average(x > (stimOnset + 0.2) & x <ssend) - baseline;
+
+TimeConst = find(pulse <= dV63) / SAMPLERATE; % seconds after pulse crosses threshold
+TimeConst = TimeConst(1);
+Cap = round(TimeConst / Ri * 10^6); % pF
+
+[tau, b] = FitDecay(excerpt - (stimOnset + 0.2), pulse, false);
+tau = signif(tau, 3);
+line(excerpt, DecayFunction(b, excerpt - (stimOnset + 0.2)) + baseline, 'LineStyle', '--', 'Color', 'r');
+
+title(sprintf([strrep(filepath, '\', '\\') ...
+        '\nstimcode = ' num2str(stimcode) ...
+        ', pulse size = ' num2str(dA * 10^12) ...
+        ' pA, reps = ' num2str(i) ...
+        ', Ri = ' num2str(Ri) ...
+        ' Mohms\ntau = ' num2str(tau) ' ms' ...
+        ', pF (from tau) = ' num2str(round(tau / Ri * 10^3)) ...
+        ', pF (from time to 63) = ' num2str(Cap)]));

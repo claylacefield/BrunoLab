@@ -1,0 +1,250 @@
+function [psp, n, stimuli, spon, angle, magnitude, OffOnPSP, OffOnSpikes] = PolarPlots(filepath, duration, stimOnset, winstart, winend, OffStart, Plots, trialstart, trialend)
+%
+% POLARPLOTS(FILEPATH, DURATION, STIMONSET, WINSTART, WINEND)
+% Computes PSP and spike polar plots for whole cell recording contained in
+% a psp.dat and spikes.cluster1 files, processed from original .dat file.
+%
+% Randy Bruno, June 2003
+
+if (nargin == 0)
+    [filename pathname OK] = uigetfile('-wcp-psp.dat', 'Select median-filtered PSP file');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+else
+    if (~exist(filepath, 'file'))
+        disp(['PolarPlots.m cannot find ' filepath]);
+        error(['PolarPlots.m cannot find ' filepath]);
+        return
+    end  
+    
+    %if this is not the psp file, change the filename to point to the psps
+    if (isempty(findstr('psp', filepath)))
+        filepath = [filepath(1:(length(filepath)-4)) '-psp.dat'];
+    end
+    
+    %check that file exists
+    if (~exist(filepath, 'file'))
+        disp(['PolarPlots.m cannot find ' filepath]);
+        error('Whole-cell recordings must first be separated into PSPs and spikes before being displayed as polar plots.');
+        return
+    end
+end
+
+if (nargin < 5)
+    winstart = 150;
+    winend = 200;
+end
+if (nargin < 3)
+    duration = 500;
+    stimOnset = 145;
+end
+
+if (nargin < 5 | isempty(winstart) | isempty(winend))
+    answers = str2num(cell2mat(inputdlg({'Duration (msec)', 'Stimulus onset (msec)', 'Window Start (msec)', 'Window End (msec)'}, 'Parameters for polar plots', 1, {num2str(duration), num2str(stimOnset), '150', '350'})));
+    duration = answers(1);
+    stimOnset = answers(2);    
+    winstart = answers(3);
+    winend = answers(4);
+end
+
+if (nargin < 6)
+    OffStart = 350;
+end
+
+if (nargin < 7)
+    Plots = true;
+end
+
+if (nargin < 8)
+    trialstart = 0;
+    trialend = 1000;
+end
+
+stimuli = ReverseArray(GetStimCodes(filepath, duration))
+nStim = length(stimuli);
+if nStim > 16
+    errordlg('Parameters may be misconfigured. More than 16 stimuli types detected.');
+    return
+end
+
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+nScans = SAMPLERATE * (duration / 1000);
+x = linspace(0, duration, nScans);
+recSize = (nScans + 1) * 4; %in bytes
+
+fid = fopen(filepath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+% average each condition separately
+n = zeros(nStim, 1); % number of reps for each stimulus
+average = zeros(nScans, nStim);
+psp = zeros(nStim, 1);
+OffPSP = zeros(nStim, 1);
+psps = [];
+slope = [];
+stim = [];
+trial = 0;
+while (~feof(fid))
+    stimulus = fread(fid, 1, 'float32');
+    if (feof(fid) | isempty(stimulus)) break; end;
+    signal = SCALINGFACTOR * fread(fid, nScans, 'float32') - 7;
+    if (feof(fid) | isempty(signal)) break; end;
+    if (trial >= trialstart) & (trial <= trialend)
+        i = PositionInArray(stimuli, stimulus);
+        n(i) = n(i) + 1;
+
+        average(:, i) = MemorylessAverage(average(:, i), signal, n(i));
+    
+        baseline = median(signal(x > (winstart - 10) & x < winstart));
+%        peak = max(signal(x >= winstart & x <= (winstart + 15)));
+        peak = max(signal(x >= winstart & x <= winstart + 50));
+        amplitude = peak - baseline;PS
+        psp(i) = MemorylessAverage(psp(i), amplitude, n(i));
+        psps = [psps amplitude]; 
+
+        baseline = median(signal(x > (OffStart - 10) & x < OffStart));
+        peak = max(signal(x >= OffStart & x<= OffStart + 50));
+        
+        OffPSP(i) = MemorylessAverage(OffPSP(i), peak - baseline, n(i));
+
+        %[rt, sl] = RiseTimeOfPSP(signal(x >= winstart & x <= (winstart+15)), baseline, peak);
+        stim = [stim i];
+        %slope = [slope sl];
+    end
+    trial = trial + 1;
+end
+fclose(fid);
+
+% calculate variances of PSPs for each angle
+varpsp = zeros(nStim, 1);
+for i = 1:length(stimuli)
+    varpsp(i) = var(psps(stim==i));
+end 
+
+if (Plots)
+    figure;
+    % plot averages of .psp.dat signals
+    minimum = min(min(average));
+    maximum = max(max(average));
+    for i = 1:nStim
+        subplot(nStim, 3, 3*i-2);
+        plot(x, average(:, i));
+        set(gca, 'Box', 'Off');
+        axis([0 duration minimum maximum]);
+        if (nargin == 3)
+            line([stimOnset stimOnset], [minimum, maximum], 'Color', 'green');
+        end
+        if (i < nStim)
+            set(gca, 'XTickLabel', '');
+            xlabel('');
+        end
+        if (i == floor(nStim/2))
+            ylabel('mean Vm')
+        end
+        title(['angle = ', num2str(StimCodeToDegrees(stimuli(i))), '; stimCode = ', num2str(stimuli(i))]);
+    end
+    xlabel('msec');
+end
+
+% load spike data
+SpikePath = [filepath(1:(length(filepath)-7)) 'spikes.cluster1'];
+cluster = ReadCluster(SpikePath);
+cluster = cluster(cluster(:,2) >= trialstart & cluster(:,2) <= trialend, :);
+stimulus = StimCodeToDegrees(cluster(:,3));
+nreps = (max(cluster(:,2)) - min(cluster(:,2)) + 1) / nStim;
+timestamp = cluster(:,4);
+
+% generate PSTHs
+if (Plots)
+    maxCode = max(cluster(:,3));
+    maximum = 0;
+    for i = 1:nStim
+        subplot(nStim, 3, 3*i-1);
+        code = stimuli(i);
+        angle = StimCodeToDegrees(code);
+        subset = cluster(cluster(:,3)==code,:);
+        [PSTHn, bins] = PSTH(subset, winstart, winend, [], true, 500, 1);
+        box off;
+        title('');
+        maximum = max(maximum, max(PSTHn));
+        xlim([2 500]);
+        if (i < nStim)
+            set(gca, 'XTickLabel', '');
+            xlabel('');
+        end
+        if (i ~= round(nStim / 2))
+            ylabel('');
+        end
+    end
+    if maximum==0
+        maximum=1;
+    end
+
+    % put all PSTHs on same scale and indicate response window
+    for i = 1:nStim
+        subplot(nStim, 3, 3*i-1);
+        if (i == 1) title(filepath); end
+        ylim([0 maximum]);
+        hold on;
+%         area([winstart winstart winend winend], [0 maximum maximum 0], 'FaceColor', 'yellow', 'FaceAlpha', 0.5, 'EdgeColor', 'none');
+        hold off;
+    end
+end
+
+% calculate spiking responses
+spikes = stimulus(timestamp>=winstart & timestamp<winend);
+if (isempty(spikes))
+    n = zeros(nStim, 1);
+else
+    n = histc(spikes, StimCodeToDegrees(stimuli));
+end
+if (size(n, 2) > size(n, 1))
+    n = n';
+end
+n = n / nreps;
+spon = length(timestamp(timestamp > (stimOnset-110) & timestamp <= (stimOnset-10))) * 10 / (nreps * nStim);
+
+% convert stimcodes to radians
+stimuli = StimCodeToDegrees(stimuli);
+x = stimuli' * pi / 180;
+
+if (Plots)
+    % PSP amplitude polar plot
+    %subplot(nStim, 3, linspace(3,nStim*3/2,nStim/2));
+    subplot(nStim, 3, [3 6]);
+    polar([x; x(1)], [psp; psp(1)]); %extra points are needed to prevent breaks in polar plots
+    [angle, magnitude, sumx, sumy] = meanVector(psp, stimuli');
+    line([0 sumx], [0 sumy]);
+    ylabel('mean PSP (mV)');
+    dstest = anova1(psps, stim, 'off')
+    title(sprintf(['mean angle: ', num2str(signif(mean(psp),1)), ', best angle: ', num2str(signif(max(psp),1)), ', ANOVA p: ', num2str(signif(dstest,3)), ...
+        '\nmean PSP: ', num2str(signif(mean(psps),1)), ', max PSP: ', num2str(signif(max(psps),1))]));
+    if (nStim==8)
+        subplot(nStim, 3, [9 12]);
+        polar([x; x(1)], [sqrt(varpsp); sqrt(varpsp(1))]);
+        ylabel('SD of PSPs (mV)');
+    % PSP slope polar plot
+    %subplot(nStim, 3, [9 12]);
+    %avgslope = zeros(nStim, 1);
+    %for i = 1:nStim
+    %    avgslope(i) = nanmean(slope(stim==i));
+    %end
+    %polar([x; x(1)], [avgslope; avgslope(1)]); %extra points are needed to prevent breaks in polar plots
+    % spikes polar plot
+    %subplot(nStim, 3, linspace(nStim*3/2+3,nStim*3,nStim/2));
+    subplot(nStim, 3, [15 18]);
+    polar([x; x(1)], [n; n(1)]);
+    ylabel('spikes/stim');
+    title(['spon = ', num2str(spon), ...
+       ' Hz, mean = ', num2str(mean(n)), ...
+       ' sp/st, max = ', num2str(max(n)), ...
+       ' sp/st']);
+    end
+
+    set(gcf, 'Name', filepath);
+    plotedit('ON');
+end
+
+OffOnPSP = mean(OffPSP) / mean(psp)
+OffOnSpikes = length(stimulus(timestamp>=OffStart & timestamp<(OffStart+winend-winstart))) / length(spikes)

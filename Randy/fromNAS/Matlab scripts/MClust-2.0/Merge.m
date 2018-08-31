@@ -1,0 +1,29 @@
+function MCC = Merge(MCC1, MCC2)
+
+% MCCluster/Merge(MCC1, MCC2)
+%
+% INPUTS
+%    MCC1, MCC2 two convex hull clusters
+%
+% ADR 1999
+% version M1.1
+% RELEASED as part of MClust 2.0
+% See standard disclaimer in ../Contents.m
+
+
+MCC = mcconvexhull;
+
+nD = length(MCC1.xdims);
+for iD = 1:nD
+   fD = find(MCC2.xdims == MCC1.xdims(iD) & MCC2.ydims == MCC1.ydims(iD));
+   if ~isempty(fD)
+      MCC.xdims(end+1) = MCC1.xdims(iD);
+      MCC.ydims(end+1) = MCC1.ydims(iD);
+      newx = [MCC1.cx{iD}; MCC2.cx{fD}];
+      newy = [MCC1.cy{iD}; MCC2.cy{fD}];
+      chk = convhull(newx, newy);
+      MCC.cx{end+1} = newx(chk);
+      MCC.cy{end+1} = newy(chk);
+   end
+end
+

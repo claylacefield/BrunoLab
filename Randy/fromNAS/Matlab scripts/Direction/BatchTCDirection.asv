@@ -1,0 +1,69 @@
+% Batch process a list of files contained in a spreadsheet databases.
+% Batch Population Polar Plots
+% Randy Bruno, October 2004
+
+% fix answers so don't have to be 3 digits
+answers = str2num(cell2mat(inputdlg({'Stimulus onset (msec)', 'Window Start (msec)', 'Window End (msec)'}, 'Parameters for polar plots', 1, {'145', '150', '350'})));
+data = xlsreadastext('C:\Documents and Settings\Randy Bruno\Desktop\analyses\tc2.xls'); %read data
+attach;
+
+n = length(Pwfile);
+
+spontaneous = zeros(n, 1);
+spikesmean = zeros(n, 1);
+spikespref = zeros(n, 1);
+bestAngle = zeros(n, 1);
+avgspikes = zeros(8,1);
+ravgspikes = zeros(8,1);
+ncells = 0;
+nspikingcells = 0;
+for i = 1:n
+    disp(['i = ', num2str(i), ': ', Pwfile{i}]);
+    if (~isempty(Pwfile{i}) & ~strcmp(Pwfile{i}, 'NA') & isfinite(medfilt(i)))
+        % if there is a PW file listed and the data was filterable...
+        [n, stimuli, spon] = PolarSpikes(cluster, winstart, winend, nreps, Plots)              
+        [nspikes, stimuli, spon] = PolarSpikes(cluster, answers(2), answers(3)4), false);
+        stimuli = stimuli';
+        
+        ncells = ncells + 1;
+       
+        spontaneous(i) = spon;
+        spikesmean(i) = mean(nspikes);
+        spikespref(i) = max(nspikes);
+        
+        % correct for stimulator rotation if necessary
+        if (~isnan(rotated) & rotated)
+            shift = -(rotated / 45);
+            psp = circshift(psp, shift);
+            nspikes = circshift(nspikes, shift);
+        end         
+            
+        %average polar plots
+        if (max(nspikes) > 0)
+            nspikingcells = nspikingcells + 1;
+            avgspikes = MemorylessAverage(avgspikes, nspikes, nspikingcells);
+            bestAngleSpikes = stimuli(nspikes==max(nspikes));
+            ravgspikes = MemorylessAverage(ravgspikes, circshift(nspikes, -bestAngleSpikes/45), nspikingcells);
+        end
+        figure(1);
+        subplot(2, 2, 2);
+        polar(DegreesToRadians([stimuli; stimuli(1)]), [avgspikes; avgspikes(1)]);
+        title(['Average spikes polar plot of TC cells under fentanyl (n = ' num2str(nspikingcells) ')']);
+        drawnow;
+        
+        %average polar plots aligned to best direction
+        figure(1);
+        subplot(2, 2, 4);
+        polar(DegreesToRadians([stimuli; stimuli(1)]), [ravgspikes; ravgspikes(1)]);
+        title(['Rotated to best angle']);
+        drawnow;
+    else
+        spontaneous(i) = NaN;
+        spikesmean(i) = NaN;
+        spikespref(i) = NaN;
+        bestAngle(i) = NaN;
+    end
+end
+
+detach;
+clear answers PWfile filtersize psp nspikes spon

@@ -1,0 +1,118 @@
+function [stimTrig, whiskContactCell, firstContactArr] = findWhiskerContactsAll()
+
+% Clay 011912
+% col8@columbia.edu
+
+
+% sample frequency
+%sf = 32000;
+
+%% FIND STIMULUS TRIGGERS
+% UI to choose and process a file of stimulus triggers
+[stimTrig] = findStimTrigsAll();   % gives cell array of stim triggers for each fread epoch
+
+
+%% now load in whisker signal DAT file
+[filename pathname] = uigetfile('*.dat', 'Select a .dat file of whisker signals to read');
+filepath = [pathname filename];
+
+[fid, message] = fopen(filepath, 'r', 'b');
+
+headerSize = SkipDATHeader(fid);
+
+%j = 0;
+whiskContacts = [];
+
+%sizeA = sf*100;   % number of samples to read at a time (100s worth)
+
+while ~feof(fid)
+    whiskSig = fread(fid,'*float32');      % read in only some chunk of data at a time
+    % note that fread pads last file chunk with zeros up to sizeA
+    
+    %i = 1;  % increments sample points within file read epoch
+    %j = 1;
+    %x = 0;  % increments stimulus trigger events
+    
+    %whiskContactTemp = [];
+    
+    whiskSig = whiskSig(1:4:length(whiskSig));  % drop down to 8kHz (the easy way)
+    sf = 8000;
+ 
+    lowFbound = 30;
+    highFbound = 8000;
+    %Nyquist = sf/2;
+    filtWhiskSig = BandFilt(whiskSig, sf, lowFbound, highFbound);    % filter
+    %whiskerSignal = fir1(30, [50 10000]/Nyquist);    % what filter order?
+    
+    clear whiskSig; % clear unfiltered to save memory
+    
+    % select out regions during stimulus epoch to look for whisker contacts
+    stimEpochStart = stimTrig + 2600;   % start looking for whisker contacts after motor artifact should have ended
+    stimEpochEnd = stimEpochStart + 8000;  % and stop just before the end motor artifact
+    
+    
+    %% and for each stimulus epoch, look for whisker contacts
+    
+    whiskContactCell = {};
+    firstContactArr = [];
+    
+    whiskContacts = [];
+    firstContactArrAbsT = [];
+    
+    for k = 1:length(stimTrig)   % so for each stimulus trigger in the corresponding stimulus epoch
+        
+        whiskTrial = [];
+        whiskContactTrial = [];
+        
+        whiskTrial = filtWhiskSig(stimEpochStart(k):stimEpochEnd(k));  % isolate whisker signal for this stimulus trial (either type)
+        % NOTE that this might fall outside of the whisker read epoch so
+        % may generate error
+        
+        whiskContactTrial = LocalMinima(whiskTrial, 200, -0.2);  % detects peaks using LocalMinima (Buzsaki/Harris(kmf))
+        %whiskContactTrial = whiskContactTrial + stimEpochStart(k);  % adjust indices to make relative to whole recording (not just this trial)
+        %NOTE: that this is slightly misaligned but shouldn't matter much
+        %NOTE: now not adjusting to absolute time because trying to make
+        %single-trial cells for using with linescan frames from VSD imaging
+        
+        
+        % now concatenate the latest whisker contacts with the previous
+        if length(whiskContactTrial)>0
+            whiskContactTrial = whiskContactTrial + 2600;  % now adjusted for absolute time for this trial
+            whiskContactCell{k} = whiskContactTrial;   % and put in cell array
+            whiskContactTrialAdj = whiskContactTrial+stimTrig(k);
+            whiskContacts = vertcat(whiskContacts, whiskContactTrialAdj);
+            
+            firstContact = whiskContactTrial(1) + 2600;  % just isolates the first whisker contact in the stimulus trial
+            firstContactArr(k) = firstContact;
+            firstContactArrAbsT(k) = firstContact + stimTrig(k);
+        else
+            whiskContactCell{k} = 0;  % don't know if I need this
+            firstContactArr(k) = 0;
+            firstContactArrAbsT(k) = 0;
+        
+        end
+        
+    end
+    
+    %j = j + 1;
+    
+end
+
+clear filtWhiskSig;     % clear filtered to save memory
+
+fclose('all');
+
+
+%% now plot the whisker signal with putative whisker contacts
+
+% t=1:length(whiskSignal);
+% 
+% figure;
+% plot(whiskerSignal);
+% hold on;
+% plot(filtWhiskSig, 'g');
+% plot(t(whiskContact),whiskerSignal(whiskContact), 'r.');
+% plot(t(firstContactArr),whiskerSignal(firstContactArr), 'c.');
+
+
+

@@ -1,0 +1,24 @@
+
+
+
+
+
+figure; 
+n=0; ca = [];
+for i = 1:10 %ize(mouseSummCell,1)
+    try
+        subplot(5,5,i);
+        plotMeanSEM(mouseSummCell{i,18}, 'b');
+        ca = [ca mouseSummCell{i,18}];
+    catch
+    end
+end
+
+
+
+
+
+
+
+
+

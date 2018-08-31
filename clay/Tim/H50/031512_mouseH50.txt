@@ -1,0 +1,91 @@
+animal number =
+031512_mouseH50
+box number =
+1
+session length =
+30
+START time
+18:11
+initial rewarded direction (1 = top, 2 = bot)
+1
+reward amount/duration = 
+19
+program type = fast, reversal midway in session
+headfix_fastReversal_012612a.pde
+BEGIN DATA
+lever press start
+60358
+stim trigger (bottom/rewarded)
+60759
+lever press start
+63709
+stim trigger (top)
+64110
+unrewarded lever press
+64977
+lever press start
+77365
+lever press start
+77418
+lever press start
+177215
+lever press start
+177372
+lever press start
+450811
+lever press start
+451014
+lever press start
+495558
+lever press start
+495755
+lever press start
+629251
+lever press start
+629406
+lever press start
+629489
+lever press start
+630039
+stim trigger (top)
+630440
+unrewarded lever press
+630932
+lever press start
+1004675
+lever press start
+1005166
+lever press start
+1009129
+lever press start
+1009408
+lever press start
+1018120
+lever press start
+1018400
+lever press start
+1018483
+lever press start
+1018548
+lever press start
+1018799
+lever press start
+1019053
+lever press start
+1019410
+lever press start
+1019446
+stim trigger (bottom/rewarded)
+1019847
+REWARD!!!
+1020492
+Reversal
+1023578
+lever press start
+1074774
+lever press start
+1074876
+lever press start
+1753382
+END time
+18:41

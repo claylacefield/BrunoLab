@@ -1,0 +1,30 @@
+function plotMouseSummCaAvg(sessList)
+
+
+firstSess = sessList{1};
+lastSess = sessList{2};
+
+load(findLatestFilename('mouseSummCell'));
+
+numSess = size(mouseSummCell,1);
+numFigs = ceil(numSess/25);
+
+ca1 = [];
+ca2 = [];
+
+sessLog = contains(mouseSummCell(:,3), sessList);
+
+for i = 1:5
+    
+    somaDend = mouseSummCell{i,6};
+    
+    progName = mouseSummCell{i,7};
+    
+    
+    try
+        rewCa = mouseSummCell{i,12};
+        unrewCa = mouseSummCell{i,13};
+        
+    catch
+    end
+end

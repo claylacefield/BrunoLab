@@ -1,0 +1,81 @@
+function [p, avg] = BurstAnalysis(clust, winstart, winend, pref)
+
+% BURSTANALYSIS Counts # of trials having 0 spikes, 1 spike, 2 spikes,
+% and so on. A limitation of this function is that there is no temporal
+% definition here for 'doublet', as an example; two spikes could occur
+% quite far apart if the designated analysis window is large enough.
+%
+% IN
+% filepath: full path to a wcp.dat file
+%
+% OUT
+% counts: an 11-element array, where the first element is the # of trials
+% in which no spikes occurred, the second element is the # of trials in
+% which exactly 1 spike occurred, and so on.
+%
+% Randy Bruno, December 2003
+
+MAXNSPIKES = 6;
+
+if nargin == 0
+    [filename pathname OK] = uigetfile('*.*', 'Select .cluster file to analyze');
+    if (~OK) return; end
+    filepath = [pathname, filename];
+    clust = ReadCluster(filepath);
+end 
+
+if nargin < 2
+    answers = inputdlg({'Window Start (msec)', 'Window End (msec)'}, 'Parameters for analysis', 1, {'150', '350'});
+    winstart = str2num(answers{1});
+    winend = str2num(answers{2});
+end
+
+% load spike data
+spiketimes = clust(:, 4);
+trials = clust(:, 2);
+ntrials = max(trials) + 1;
+
+% classify trials into 'burst' types and determine ISIs
+count = zeros(MAXNSPIKES+1, 1);
+isi = zeros(ntrials, MAXNSPIKES+1);
+for i = 1:ntrials
+    for j = 1:11
+        isi(i, j) = NaN;
+    end
+end
+stim = zeros(ntrials, 1);
+
+for i = 0:(ntrials-1)
+    spikes = spiketimes(trials == i & spiketimes >= winstart & spiketimes <= winend & );
+    
+    nspikes = length(spikes);
+    if (nspikes > MAXNSPIKES)
+        error('trial has more spikes than permitted by MAXNSPIKES; increase # of categories');
+    end
+    count(nspikes+1) = count(nspikes+1) + 1;
+    x = clust(trials == i, 3);
+    stim(i+1) = x(1);
+
+    if (nspikes >= 2)
+        for j = 2:nspikes
+            isi(i+1, j+1) = spikes(j) - spikes(j-1);
+        end
+    end
+end
+
+% plot results
+figure;
+
+subplot(2,1,1);
+p = count/ntrials;
+bar(0:MAXNSPIKES, p);
+xlabel('# of spikes in specified window');
+ylabel('# of trials');
+
+for i = 1:(MAXNSPIKES+1)
+    avg(i) = mean(excise(isi(:, i)));
+end
+subplot(2,1,2);
+bar(0:MAXNSPIKES, avg);
+xlabel('# of spikes in specified window');
+ylabel('average ISI (msec)');

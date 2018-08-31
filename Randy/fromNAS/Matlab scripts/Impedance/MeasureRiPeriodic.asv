@@ -1,0 +1,243 @@
+function[Imp, delta_z, p_delta_z] = MeasureRiPeriodic(wn_params, params);
+PLOT = false;
+
+stimuli = ReverseArray(GetStimCodes(wn_params.filepath_v, wn_params.duration))
+n_stim = length(stimuli);
+nan_window =3;
+wc= 0;
+ws=0;
+ww= 0;
+if wn_params.duration == 1500
+Pulse_start= [10, 210, 410, 610, 810, 1010, 1210]
+ssstart = Pulse_start+ 50;
+ssend = [0, Pulse_start + 100];
+elseif wn_params.duration ==500
+Pulse_start= [100, 300]
+ssstart = Pulse_start+ 50;
+ssend = [0, Pulse_start + 100]; 
+end
+dA = 0.1e-9;
+
+for i = 1:n_stim
+    %     wn_code = stimuli(i);
+    %     angle(i) = StimCodeToDegrees(wn_code);
+
+    if abs(stimuli(i)) <= 360
+        ww = ww+1;
+        whisker_angles(ww) = stimuli(i);
+    elseif abs(stimuli(i)) >= 1000 & abs(stimuli(i))< 2000 
+        ws = ws+1;
+        wn_angles(ws) = stimuli(i);
+    elseif abs(stimuli(i)) >= 2000
+        wc = wc+1;
+        wc_angles(wc) = stimuli(i);
+    end
+end
+
+n_whisker_stim = length(whisker_angles);
+n_wn_stim = length(wn_angles);
+n_wc_stim = length(wc_angles);
+
+if wc == 0
+if n_whisker_stim ~= n_wn_stim
+    error('Different number of whisker and measure Ri stim');
+else
+    n_angles = n_whisker_stim;
+end
+else
+    if n_whisker_stim ~= n_wn_stim & n_whisker_stim ~= n_wc_stim
+        error('Different number of whisker and measure Ri stim');
+    else
+        n_angles = n_whisker_stim;
+    end
+end
+
+SCALINGFACTOR = 100;
+SAMPLERATE = params.Fs; % in Hz
+nScans = SAMPLERATE * (wn_params.duration / 1000);
+stim_on = SAMPLERATE*((wn_params.stim_on)/1000);
+stim_off = SAMPLERATE*((wn_params.stim_end)/1000);
+x = linspace(0, wn_params.duration, nScans);
+
+stim_window = stim_off - stim_on;
+trial_start = wn_params.trial_start;
+trial_end = wn_params.trial_end;
+
+recSize = (nScans + 1) * 4; %in bytes
+
+disp(wn_params.filepath_v);
+disp(wn_params.filepath_i);
+
+fvid = fopen(wn_params.filepath_v, 'r', 'b');
+fiid = fopen(wn_params.filepath_i, 'r', 'b');
+
+headerSize_v = SkipHeader(fvid);
+headerSize_i = SkipHeader(fiid);
+
+nRecs_v = floor(GetNumberOfRecords(wn_params.filepath_v, wn_params.duration));
+nRecs_i = floor(GetNumberOfRecords(wn_params.filepath_i, wn_params.duration));
+
+if (nRecs_v~=nRecs_i)
+    error('current and voltage recording have different number of trials');return;
+end
+
+nRecs = nRecs_v;
+n_trials = ceil(nRecs/n_stim);
+
+wn_i = zeros(stim_window, n_trials, n_angles);
+wn_v = zeros(stim_window, n_trials, n_angles);
+whisker_v = zeros(stim_window, n_trials, n_angles);
+null_i = zeros(stim_window, n_trials);
+null_v = zeros(stim_window, n_trials);
+if wc ~= 0
+    wc_i = zeros(stim_window, n_trials, n_angles);
+    wc_v = zeros(stim_window, n_trials, n_angles);
+    wc_trial = zeros(1, n_angles);
+end
+whisker_trial = zeros(1, n_angles);
+wn_trial = zeros(1, n_angles);
+null_trial = 0;
+
+ntrials = 0;
+nskipped = 0;
+trial = 0;
+H = figure;
+F = figure;
+
+% [psp, time, ws_stimuli] = MeanContinuousByStim(ws_params.filepath, ws_params.duration, ws_params.stim_on);
+% ws_n_stim = length(ws_stimuli);
+% ws_stim_on = SAMPLERATE*((ws_params.stim_on)/1000);
+% ws_stim_off = SAMPLERATE*((ws_params.stim_end)/1000);
+% for i = 1:ws_n_stim
+%
+%     temp_psp = psp(:, i);
+%     ws_psp(:,i) = temp_psp(x>ws_stim_on & x<= ws_stim_off);
+%     code = ws_stimuli(i);
+%     ws_angle(i) = StimCodeToDegrees(code);
+% end;
+% figure;
+% for i = 1:ws_n_stim
+%     plot(ws_psp(:,i));
+%     hold on;
+% end
+while (~feof(fvid))
+    stimulus_v = fread(fvid, 1, 'float32');
+    stimulus_i = fread(fiid, 1, 'float32');
+    %
+    %
+    trial = trial +1;
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    if (stimulus_v ~= stimulus_i) break; end;
+    %
+    stimulus = stimulus_v;
+
+    %
+    signal_v = fread(fvid, nScans, 'float32');
+    signal_i = fread(fiid, nScans, 'float32');
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    if (trial >= trial_start) & (trial <= trial_end)
+        stim_v = signal_v(x>=wn_params.stim_on & x<=wn_params.stim_end).*100;
+        %stim_v = stim_v - mean(stim_v);
+        stim_i = signal_i(x>=wn_params.stim_on & x<=wn_params.stim_end).*10;
+
+
+        if (feof(fvid)) break; end;
+        if (feof(fiid)) break; end;
+
+        ntrials = ntrials + 1;
+   
+        if abs(stimulus) >= 1000 & abs(stimulus) < 2000
+            i = find(wn_angles == stimulus);
+            wn_trial(i)= wn_trial(i)+1;
+
+            wn_i(:, wn_trial(i), i) = stim_i;
+            wn_v(:, wn_trial(i), i) = stim_v;
+        elseif abs(stimulus) > = 2000
+            i = find(wc_angles == stimulus);
+            wc_trial(i)= wc_trial(i)+1;
+            wc_i(:, wn_trial(i), i) = stim_i;
+            wc_v(:, wc_trial(i), i) = stim_v;
+        elseif stimulus == -999
+            null_trial = null_trial +1;
+            null_i(:, null_trial) = stim_i;
+            null_v(:, null_trial) = stim_v;
+
+        elseif abs(stimulus) <=360
+            i = find(whisker_angles == stimulus);
+            whisker_trial(i) = whisker_trial(i) +1;
+            whisker_v(:, whisker_trial(i), i) = stim_v;
+        end
+    end
+
+
+
+
+end
+hold off
+if nskipped < ntrials
+    disp(['Skipped ' num2str(nskipped) ' of ' num2str(ntrials) ' trials.']);
+else
+    disp('*********WARNING*********');
+    disp(['Skipped' num2str(nskipped) 'of' num2str(ntrials) 'trials!!']);
+    disp('Check AP Threshold Setting!!');
+end
+fclose(fvid);
+fclose(fiid);
+null_i_mean = squeeze(mean(null_i(:, 1:null_trial), 2));
+null_v_mean = squeeze(mean(null_v(:, 1:null_trial), 2));
+figure(H);
+subplot(n_angles+1, 1, 1)
+plot(x, null_v_mean)
+hold on;
+average = null_v_mean;
+for j = 1:length(Pulse_start)
+    startpt = ssend(j);
+        pstart = Pulse_start(j);
+        sstart = ssstart(j);
+        send = ssend(j+1);
+        baseline = mean(average(x>startpt  & x < pstart));
+        line([startpt pstart], [baseline baseline], 'LineStyle', '--', 'Color', 'r');
+        steadystate = mean(average(x > sstart & x < send));
+        line([sstart send], [steadystate steadystate], 'LineStyle', '--', 'Color', 'r');
+        dV = (baseline - steadystate) / 1000; % change in volts
+        Ri_null(j) = signif(dV / dA / 10^6, 0)
+end
+hold off;
+
+for i = 1:n_angles
+    whisker_v_mean(:, i) = squeeze(mean(whisker_v(:, 1:whisker_trial(i), i), 2));
+    wn_i_mean(:, i) = squeeze(mean(wn_i(:, 1:wn_trial(i), i), 2));
+    wn_v_mean(:, i) = squeeze(mean(wn_v(:, 1:wn_trial(i), i), 2));
+    wn_nopsp_mean(:, i) = wn_v_mean(:, i)-whisker_v_mean(:, i);
+    if wc~=
+    figure(H);
+    subplot(n_angles+1, 1, i+1);
+    
+    for j = 1:length(Pulse_start)
+        average = wn_nopsp_mean(:, i);
+        startpt = ssend(j);
+        pstart = Pulse_start(j);
+        sstart = ssstart(j);
+        send = ssend(j+1);
+        baseline = mean(average(x>startpt  & x < pstart));
+        line([startpt pstart], [baseline baseline], 'LineStyle', '--', 'Color', 'r'); hold on;
+        steadystate = mean(average(x > sstart & x < send));
+        line([sstart send], [steadystate steadystate], 'LineStyle', '--', 'Color', 'r');
+        dV = (baseline - steadystate) / 1000; % change in volts
+        Ri(i, j) = signif(dV / dA / 10^6, 0)
+    end
+    [haxes, hline1, hline2] = plotyy(x, wn_nopsp_mean(:, i), [0, ssstart], [mean(Ri_null), Ri(i, :)]);
+    hold off;
+    axes(haxes(1))
+ylabel('V');
+axes(haxes(2))
+ylabel('Ri')
+
+   figure(F)
+   subplot(n_angles, 1, i)
+   plot([0, ssstart], [mean(Ri_null), Ri(i, :)])
+end
+
+  

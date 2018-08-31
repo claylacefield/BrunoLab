@@ -1,0 +1,32 @@
+
+;; Function mexVersion
+
+;; Register dispositions:
+69 in 2  
+
+;; Hard regs used:  2 24
+
+(note 2 0 3 "" NOTE_INSN_DELETED)
+
+(note 3 2 4 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 4 3 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 7 "" NOTE_INSN_DELETED)
+
+(insn 7 6 10 (set (reg:SI 2 %g2)
+        (high:SI (symbol_ref:SI ("version")))) 85 {*sethi_si} (nil)
+    (expr_list:REG_EQUIV (high:SI (symbol_ref:SI ("version")))
+        (nil)))
+
+(insn 10 7 11 (set (reg/i:SI 24 %i0)
+        (mem:SI (lo_sum:SI (reg:SI 2 %g2)
+                (symbol_ref:SI ("version"))))) 106 {*movsi_insn} (insn_list 7 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 %g2)
+        (nil)))
+
+(insn 11 10 18 (use (reg/i:SI 24 %i0)) -1 (insn_list 10 (nil))
+    (expr_list:REG_DEAD (reg/i:SI 24 %i0)
+        (nil)))
+
+(note 18 11 0 "" NOTE_INSN_DELETED)

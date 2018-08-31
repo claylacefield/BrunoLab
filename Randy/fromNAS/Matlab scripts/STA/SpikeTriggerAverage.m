@@ -1,0 +1,133 @@
+function [x, average, n, isis, meanVm, se, usedcluster] = SpikeTriggerAverage(duration, triggercluster, averagingpath, LIMIT, UpDownBorder, Vend, GreaterThan, memoryless, Plots)
+% SPIKETRIGGERAVERAGE Averages continuous traces from one cell (e.g., whole-cell
+% recording) with regard to spiketimes from another cell
+%
+% INPUTS
+% duration: trial length in msecs
+% triggercluster: a standard matrix description of a cluster of spikes
+%                   corresponding to one cell
+% averagingpath: a string specifying the filepath of a continuous datafile
+%               to be averaged
+% LIMIT: # of msecs around a spiketime to average the continuous trace
+% UpDownBorder: mV above which the cortical cell is said to be in an UP
+%               state and below which the cell is in a DOWN state
+% Vend: can be used with UpDownBorder to define a specific range of mV to
+%       examine (only has an effect when GreaterThan = 2)
+% GreaterThan: set to 1 to average only data having Vm > UpDownBorder, 0
+%               for <, and 2 for UpDownBorder < Vm < Vend
+% memoryless: set to 0 to read in all data and average (memory-intensive
+%               and slow), set to 1 to use a memoryless averaging trick
+%               (fast). The memoryless average assumes that the values to
+%               be averaged are all within several orders of magnitude.
+%
+% OUTPUTS
+% x: a grid spanning -LIMIT to +LIMIT
+% average: the spike-triggered average at times specified by x
+% n: a single integer giving the # of spikes used in computing the STA
+%
+% Randy Bruno, May 2003
+
+if (nargin < 4)
+    LIMIT = 200;
+    UpDownBorder = Inf;
+    GreaterThan = 1;
+    memoryless = 1;
+end
+
+SAMPLERATE = 32000; % in Hz
+VpreSpikeStart = SAMPLERATE/1000 * (LIMIT - 9.5);
+VpreSpikeEnd = SAMPLERATE/1000 * (LIMIT + 0.5);
+recSize = (SAMPLERATE * (duration / 1000) + 1) * 4; %in bytes
+
+trial = triggercluster(:,2);
+stimcode = triggercluster(:,3);
+timestamp = triggercluster(:,4);
+used = false(size(timestamp));
+isi = ISIof(triggercluster);
+
+fid = fopen(averagingpath, 'r', 'b');
+headerSize = SkipHeader(fid);
+
+nScansToRead = SAMPLERATE/1000 * LIMIT * 2 + 1;
+x = linspace(-LIMIT, LIMIT, nScansToRead);
+
+disp('Computing spike-triggered average...');
+n = 0;
+if (memoryless)
+    if Plots
+        h = figure;
+    end
+    average = double(zeros(1, nScansToRead));
+else
+    % set up an array to aggregate Vm. Cannot have more excerpts of Vm than
+    % there were spikes. Must trim array later.
+    average = double(zeros(length(timestamp), nScansToRead));
+end
+lasttrial = 0;
+isis = [];
+meanVm = 0;
+for i = 1:length(timestamp)
+    if (timestamp(i) > 0) % don't read null spikes!
+        if (timestamp(i) >= LIMIT & timestamp(i) < (duration-LIMIT)) % must have long enough periods to average
+            % change position to start of appropriate continuous record &
+            % get stimcode
+            status = fseek(fid, trial(i)*recSize + headerSize, 'bof');
+            if (status == -1) error('could not seek to start of record'); end
+            stimulus = fread(fid, 1, 'float32');
+            if (stimulus ~= stimcode(i))
+                error(['Stimulus codes (' num2str(stimulus) ' and ' num2str(stimcode(i)) ') do not match. Check specified value for trial duration.']);
+            end
+            % change position to start of appropriate period to sample
+            ByteOffset = round((timestamp(i) - LIMIT) * SAMPLERATE/1000) * 4;
+            status = fseek(fid, ByteOffset, 'cof');
+            if (status == -1) error('could not seek to appropriate position'); end
+            % sample
+            data = fread(fid, nScansToRead, 'float32')';
+            %if max(data) > .99 % if data acquisition voltage limits were exceeded, skip this sample -- trick to avoid electrical noise artifacts
+            %    continue
+            %end
+            data = data * 100; % put Vm on mV scale
+            if (~feof(fid)) % average for each spike; ignore spikes near the end of spontaneous recording
+                excerpt = mean(data(VpreSpikeStart:VpreSpikeEnd));
+                if ((GreaterThan==1 & excerpt > UpDownBorder) | (GreaterThan==0 & excerpt < UpDownBorder) | (GreaterThan==2 & excerpt> UpDownBorder & excerpt < Vend))
+                        n = n + 1;
+                        used(i) = true;
+                        isis = [isis isi(i)];
+                        meanVm = MemorylessAverage(meanVm, excerpt, n);
+                        if (trial(i) == lasttrial)
+                            disp(['spikes from same trial:' num2str(trial(i)) ' ' num2str(lasttrial)]);
+                        end
+                        if (memoryless)
+                            average = MemorylessAverage(average, data, n);
+                            if (Plots & (trial(i) ~= lasttrial))
+                                figure(h);
+                                plot(average);
+                                title(['spike # ' num2str(i-1) ', trial # ' num2str(trial(i))]);
+                                drawnow;
+                                lasttrial = trial(i);
+                            end
+                        else
+                            average(n,:) = data;
+                        end
+                end
+            end
+        end
+    end
+    disp(['trial = ' num2str(trial(i))]);
+end
+fclose(fid);
+usedcluster = triggercluster(used, :);
+disp(['Computed average using ', num2str(n), ' of a possible ', num2str(length(timestamp)), ' real/null records']);
+if (~memoryless)
+    % trim array to the number of excerpts actually going into the average
+    average = average(1:n, :);
+    global avgvar;
+    se = std(average) / sqrt(n);
+    average = mean(average);
+else
+    avgvar = NaN;
+    se = NaN;
+    if Plots
+        close;
+    end
+end

@@ -1,0 +1,50 @@
+function [xx, yy] = raster(cluster, ISIspec)
+% RASTER Raster plot.
+% RASTER(CLUSTER) makes a raster plot of spike data contained in cluster.
+%
+% INPUTS
+% cluster: a standard cluster data structure containing a cluster file
+%           already read in
+% ISIspec: ISI criterion under which symbols should be filled
+%
+% OUTPUTS
+% xx: timestamps
+% yy: trial numbers
+% Randy Bruno, April 2003
+
+if nargin > 1
+    ISI = ISIof(cluster);
+    meetspec = ISI <= ISIspec;
+else
+    meetspec = repmat(false, nrows(cluster), 1);
+end
+
+y = unique(cluster(:, 2));
+
+yy = cluster(~meetspec, 2);
+for i = 1:length(yy)
+    yy(i) = find(yy(i) == y);
+end
+scatter(cluster(~meetspec, 4), yy, 40);
+
+if nargin > 1
+    hold on;
+    yy = cluster(meetspec, 2);
+    for i = 1:length(yy)
+        yy(i) = find(yy(i) == y);
+    end
+    scatter(cluster(meetspec, 4), yy, 40, 'filled');
+    hold off;
+end
+
+mx = max(cluster(:,4));
+mx = max(mx, 500);
+disp(length(mx))
+xlim([1 mx]);
+ylim([1 length(y)]);
+xlabel('msec');
+ylabel('trial');
+title(['# of spikes = ' num2str(nrows(RemoveNullSpikes(cluster)))]);
+
+xx = cluster(:, 4);
+yy = cluster(:, 2);

@@ -1,0 +1,27 @@
+function [b, bint, r, rint, stats] = linear(y, x, plot)
+
+% Performs a linear regression of predictor variable x and response
+% variable y
+%
+% b: intercept and slope
+% bint: 95% CI for b's
+% r: residuals
+% rint: 95% CI for each residual
+%
+% Randy Bruno, September 2003
+
+if size(x,1)==1
+    x = x';
+end
+if size(y,1)==1
+    y = y';
+end
+
+X = [ones(length(x), 1) x];
+[b, bint, r, rint, stats] = regress(y, X)
+
+if plot
+    xx = [min(x) max(x)];
+    yy = xx*b(2)+bint
+    line(xx, yy);
+end

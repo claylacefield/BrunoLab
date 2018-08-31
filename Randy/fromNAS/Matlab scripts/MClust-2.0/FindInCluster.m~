@@ -1,0 +1,61 @@
+function [f, MCC] = FindInCluster(MCC, data)
+
+% f = FindInCluster(MCC, data)
+%
+% INPUTS
+%     MCC - a MCCluster
+%     data - nS x nD data
+%
+% OUTPUTS
+%     f - indices of all points in the cluster
+
+% ADR 1999
+% version 1.1
+% status PROMOTED
+
+% v 1.1 28 Jan 99 -- added myPoints cacheing of find
+
+if MCC.recalc == 0
+   f = MCC.myPoints; 
+   return
+end
+
+nBounds = length(MCC.xdims);
+if nBounds ~= length(MCC.ydims)
+   error('Unaligned data in FindInCluster');
+end
+if nBounds ~= length(MCC.cx)
+   error('Unaligned data in FindInCluster');
+end
+if nBounds ~= length(MCC.cy)
+   error('Unaligned data in FindInCluster');
+end
+
+[nSamps, nDims] = size(data);
+
+if nBounds == 0
+   f = [];
+else
+   for iB = 1:nBounds
+      xd = MCC.xdims(iB);
+      yd = MCC.ydims(iB);
+      if (xd > nDims | yd > nDims)
+         error('Data has too few dimensions in FindInCluster');
+      end
+      if exist('f', 'var')
+         f0 = find(InConvexHull(data(f,xd), data(f,yd), MCC.cx{iB}, MCC.cy{iB}));
+         f = f(f0);
+      else
+         f = find(InConvexHull(data(:,xd), data(:,yd), MCC.cx{iB}, MCC.cy{iB}));
+      end
+      if isempty(f)
+         break;
+      end
+   end
+end
+
+if MCC.recalc == 1
+   MCC.myPoints = f; 
+   MCC.recalc = 0;
+end
+

@@ -1,0 +1,50 @@
+function MCC = MCConvexHull(ClusterData)
+
+% Cluster
+% 
+% object containing three aligned cell arrays:
+%    obj.x = xdimension 
+%    obj.y = ydimension
+%    obj.cx = convex hull x coords in x dimenion
+%    obj.cy = convex hull y coords in y dimension
+%
+% Possible constructors
+%    with no args, creates an empty cluster
+%    with 1 arg (ClusterData = points in cluster), generates cluster from the data
+%    
+% ADR 1998
+% version M1.3
+% RELEASED as part of MClust 2.0
+% See standard disclaimer in ../Contents.m
+
+switch nargin
+   
+case 0
+   MCC.xdims = [];
+   MCC.ydims = [];
+   MCC.cx = {};
+   MCC.cy = {};
+   
+case 1
+   [nS, nD] = size(ClusterData);
+   MCC.xdims = []; MCC.ydims = []; 
+   MCC.cx = {}; MCC.cy = {};
+   for iX = 1:nD
+      for iY = (iX+1):nD
+         MCC.xdims(end+1) = iX;
+         MCC.ydims(end+1) = iY;
+         %k = convhull(ClusterData(:,iX), ClusterData(:,iY));
+	 k = convexhull(ClusterData(:,iX), ClusterData(:,iY));
+         MCC.cx{end+1} = ClusterData(k,iX);
+         MCC.cy{end+1} = ClusterData(k,iY);
+      end
+   end
+   
+otherwise
+   error('Incorrect number of inputs to MCConvexHull');
+         
+end
+
+MCC.recalc = -1;
+MCC.myPoints = [];
+MCC = class(MCC, 'mcconvexhull');

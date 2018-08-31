@@ -1,0 +1,156 @@
+function [filepath_v, filepath_i, duration, stim_onset, analysis_window, avg_window]Basic
+[filename_v pathname_v OK] = uigetfile('C:\Documents and Settings\elaine\My Documents\Impedance experiment data\*.dat', 'Select recorded voltage file');
+if (~OK) return; end
+filepath_v = [pathname_v, filename_v];
+
+[filename_i pathname_i OK] = uigetfile('C:\Documents and Settings\elaine\My Documents\Impedance experiment data\*.dat', 'Select injected current file');
+if (~OK) return; end
+filepath_i = [pathname_i, filename_i];
+
+duration = input('Trial duration in msec: ');
+stim_onset = input('whisker stimulus onset at: (in msec)');
+analysis_window = input('response duration in msec: ');
+avg_window = input('moving_avg window for impedance smoothing: ');
+stimuli = ReverseArray(GetStimCodes(filepath_v, duration))
+%current and voltage files have the same set of stimuli%
+%get unique set of stimuli%
+n_stim = length(stimuli);
+SCALINGFACTOR = 100;
+SAMPLERATE = 32000; % in Hz
+nScans = SAMPLERATE * (duration / 1000);
+skip = SAMPLERATE*(stim_onset/1000);
+window = SAMPLERATE*(analysis_window/1000);
+tail = nScans-skip-window;
+N_fft = window;
+%N_fft = 2^nextpow2(nScans-skip);
+
+recSize = (nScans + 1) * 4; %in bytes
+
+fvid = fopen(filepath_v, 'r', 'b');
+fiid = fopen(filepath_i, 'r', 'b');
+
+headerSize_v = SkipHeader(fvid);
+headerSize_i = SkipHeader(fiid);
+
+nRecs_v = floor(GetNumberOfRecords(filepath_v, duration));
+nRecs_i = floor(GetNumberOfRecords(filepath_i, duration));
+
+if (nRecs_v~=nRecs_i)
+    error('current and voltage recording have different number of trials'); end
+
+nRecs = nRecs_v;
+n_trials = ceil(nRecs/n_stim);
+
+I = zeros(n_stim, n_trials, N_fft/2);
+V = zeros(n_stim, n_trials, N_fft/2);
+Z = zeros(n_stim, n_trials, N_fft);
+stim_trial = zeros(1, n_stim);
+
+%mean_If=zeros(N_fft,1);
+%mean_Vf=zeros(N_fft,1);
+
+h = figure;
+
+while (~feof(fvid))
+    stimulus_v = fread(fvid, 1, 'float32');
+    stimulus_i = fread(fiid, 1, 'float32');
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    if (stimulus_v ~= stimulus_i) break; end;
+
+    stimulus = stimulus_v;
+
+    skipped_v = fread(fvid, skip, 'float32');
+    skipped_i = fread(fiid, skip, 'float32');
+    
+    signal_v = fread(fvid, window, 'float32');
+    signal_i = fread(fiid, window, 'float32');
+    
+    tail_v = fread(fvid, tail, 'float32');
+    tail_i = fread(fiid, tail, 'float32');
+    
+    %signal_v = fread(fvid, nScans, 'float32');
+    %signal_i = fread(fiid, nScans, 'float32');
+    if (feof(fvid)) break; end;
+    if (feof(fiid)) break; end;
+    figure(h);
+    subplot(2,1,1);
+    plot(signal_v);
+    subplot(2,1,2);
+    plot(signal_i);
+
+    for i= 1:n_stim
+
+        if stimuli(i) == stimulus
+            %stimulus
+            i
+            stim_trial(i)= stim_trial(i)+1;
+            %I(i, stim_trial(i), :)= signal_i;
+            %V(i, stim_trial(i), :)= signal_v;
+            
+            I_f=2*abs(fft(signal_i))/N_fft;
+            %mean_If=(mean_If+I_f)/stim_trial(i);
+            I(i, stim_trial(i), :)= I_f(1:N_fft/2);
+            V_f=2*abs(fft(signal_v))/N_fft;
+            %mean_Vf=(mean_Vf+V_f)/stim_trial(i);
+            V(i, stim_trial(i), :)= V_f(1:N_fft/2);
+            Z(i,stim_trial(i),:)= (V_f.*V_f)./(I_f.*V_f);
+            
+        end;
+    end;
+
+%break;
+end
+
+freq = SAMPLERATE/2*linspace(0,1,N_fft/2);
+Imp = zeros(n_stim, N_fft/2);
+for i=1:n_stim
+ 
+mean_imp= reshape(mean(Z(i,1:40,1:N_fft/2)),1, N_fft/2) ;
+truncated_imp = mean_imp(3:end);
+Imp(i, :)= [mean_imp(1:2), moving_average(mean_imp(3:end), avg_window)];
+end
+z = figure;
+figure(z);
+%L=length(freq)-length(Imp);
+semilogy(freq, Imp);
+legend('0', '45', '90', '135', '180', '225', '270', '315', 'no stim');
+xlim([0 200]);
+grid on;
+
+delta_z = zeros(n_stim-1, N_fft/2);
+p_delta_z= zeros(n_stim-1, N_fft/2);
+for i=1:n_stim-1
+    delta_z(i,:) = Imp(i,:)-Imp(9,:);
+    p_delta_z(i,:) = (Imp(i,:)-Imp(9,:))./Imp(9,:);
+    
+end
+
+change_in_z=figure;
+figure(change_in_z);
+subplot(2,1,1);
+plot(freq, delta_z), title('net change in Z');
+legend('0', '45', '90', '135', '180', '225', '270', '315'),
+xlim([0 200]);
+grid on;
+
+subplot(2,1,2);
+plot(freq, p_delta_z),title('% change in Z');
+legend('0', '45', '90', '135', '180', '225', '270', '315'),
+xlim([0 200]);
+grid on;
+
+
+
+%d= merge(data{i,1:stim_trial(i)});
+%Z(i)=etfe(d{i},[],1000);
+%end
+%plot(signal_v);
+%%%%%the above scripts only saves data for one certain stimuli, and do not
+%%%%%save them in a matrix, which is what i need to do for both the signal
+%%%%%type as well as the actual voltage data.
+
+
+
+
+%fclose(fid);

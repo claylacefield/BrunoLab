@@ -1,0 +1,124 @@
+animal number =
+120511_mouseH50
+box number =
+1
+session length =
+30
+START time
+19:27
+rewarded direction (1 = top, 2 = bot)
+1
+reward amount/duration = 
+22
+program type = slow
+BEGIN DATA
+lever press start
+8870
+lever press start
+9185
+lever press start
+9313
+lever press start
+9499
+stim trigger (top)
+9900
+unrewarded lever press
+11037
+lever press start
+21097
+lever press start
+21227
+lever press start
+21535
+lever press start
+23083
+lever press start
+23212
+stim trigger (bottom/rewarded)
+23613
+REWARD!!!
+23900
+lever press start
+27097
+lever press start
+27358
+lever press start
+27483
+lever press start
+27891
+lever press start
+28135
+lever press start
+28418
+stim trigger (top)
+28819
+unrewarded lever press
+29092
+lever press start
+38042
+stim trigger (bottom/rewarded)
+38443
+REWARD!!!
+38771
+lever press start
+45035
+stim trigger (top)
+45436
+lever press start
+48386
+stim trigger (top)
+48787
+lever press start
+51738
+stim trigger (bottom/rewarded)
+52139
+REWARD!!!
+52624
+lever press start
+56742
+lever press start
+56879
+lever press start
+57677
+lever press start
+57882
+lever press start
+70051
+lever press start
+70424
+stim trigger (bottom/rewarded)
+70825
+REWARD!!!
+71460
+lever press start
+76552
+lever press start
+79339
+stim trigger (bottom/rewarded)
+79740
+REWARD!!!
+80027
+lever press start
+83116
+stim trigger (bottom/rewarded)
+83517
+REWARD!!!
+83804
+lever press start
+86892
+lever press start
+86936
+lever press start
+90492
+lever press start
+90572
+lever press start
+93415
+stim trigger (bottom/rewarded)
+93816
+REWARD!!!
+94104
+lever press start
+99181
+END time
+19:28
