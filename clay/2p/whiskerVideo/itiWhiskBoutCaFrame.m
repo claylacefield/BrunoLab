@@ -133,8 +133,11 @@ wPks = LocalMinima(-ma4, lockout, -sdThresh*std(ma4));
 stimTrigTime = eventStruc.stimTrigTime;
 rewTime4 = eventStruc.rewTime4; % random reward times
 
+try
 rewTime13 = eventStruc.rewTime13; % randRew no tone
 rewTime4 = sort([rewTime4; rewTime13]);
+catch
+end
 
 rewTime4 = rewTime4(rewTime4<stimTrigTime(end));
 

@@ -21,7 +21,7 @@ numTrials = length(stimTrigTime);
 startSig = x2(1,:);
 punSig = x2(8,:);
 
-dSig = runmean(startSig, 10);
+dSig = runmean(startSig, 50);
 %dSig = runmean(punSig, 50);
 
 %dSig = runmean(diff(dSig),5);
@@ -31,7 +31,7 @@ dSig(1:500) = 0;
 % trim out bit around actual pun pulses
 punInd = threshold(dSig,1,50);
 for i = 1:length(punInd)
-    dSig(punInd(i)-10:punInd(i)+170) = 0;
+    dSig(punInd(i)-30:punInd(i)+200) = 0;
 end
 
 % now trim unaccounted for spikes
@@ -51,8 +51,8 @@ stimEpEndTimes = LocalMinima(dSig, 3100, (min(dSig)/2));
 
 stimEpBegTimes = stimEpBegTimes + 200;
 stimEpEndTimes = stimEpEndTimes - 200;
-itiBegTimes = stimEpEndTimes+200;
-itiEndTimes = [stimEpBegTimes(2:end); length(punSig)]; itiEndTimes = itiEndTimes-250;
+itiBegTimes = stimEpEndTimes+250;
+itiEndTimes = [stimEpBegTimes(2:end); length(punSig)]; itiEndTimes = itiEndTimes-350;
 
 plotSig = startSig;
 t = 1:length(plotSig);
