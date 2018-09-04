@@ -54,13 +54,13 @@ stimEpEndTimes = stimEpEndTimes - 200;
 itiBegTimes = stimEpEndTimes+250;
 itiEndTimes = [stimEpBegTimes(2:end); length(punSig)]; itiEndTimes = itiEndTimes-350;
 
-plotSig = startSig;
-t = 1:length(plotSig);
-figure; plot(plotSig); 
-hold on; plot(t(stimEpBegTimes), plotSig(stimEpBegTimes), 'g*');
-plot(t(stimEpEndTimes), plotSig(stimEpEndTimes), 'r*');
-plot(t(itiBegTimes), plotSig(itiBegTimes), 'c*');
-plot(t(itiEndTimes), plotSig(itiEndTimes), 'm*');
+% plotSig = startSig;
+% t = 1:length(plotSig);
+% figure; plot(plotSig); 
+% hold on; plot(t(stimEpBegTimes), plotSig(stimEpBegTimes), 'g*');
+% plot(t(stimEpEndTimes), plotSig(stimEpEndTimes), 'r*');
+% plot(t(itiBegTimes), plotSig(itiBegTimes), 'c*');
+% plot(t(itiEndTimes), plotSig(itiEndTimes), 'm*');
 
 %firstStim = stimTrigTime(1);
 

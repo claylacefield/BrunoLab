@@ -6,9 +6,9 @@ function [itiWhiskBoutCaStruc] = itiWhiskBoutCaFrame(toSave, toPlot) % dendriteB
 % to extract whisking bout-triggered calcium during "clean" ITIs
 
 
-lockoutSec = 2;%0.75; %0.5; %1; %2 (old paper?);
-sdThresh = 1;%0.75; %1 (old paper);%2; %1.5;
-params.preBout = 500; %250 (old paper); %1000;
+lockoutSec = 1; %2;%0.75; %0.5; %1; %2 (old paper?);
+sdThresh = 1.5; %1;%0.75; %1 (old paper);%2; %1.5;
+params.preBout = 250; %500; %250 (old paper); %1000;
 params.postBout = 2000;
 
 
