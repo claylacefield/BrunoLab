@@ -26,4 +26,4 @@ for i = 1:size(ev2ca,2)
     end 
 end
 
-[rejNull, pval] = ttest(ev1amp, ev2amp);
+[rejNull, pval] = ttest2(ev1amp, ev2amp);
