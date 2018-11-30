@@ -4,19 +4,19 @@ function [stage1cell] = findStage1geno()
 genoPath = pwd;
 n=0;
 genoDir = dir;
-for i=3:length(genoDir)
+for i=3:length(genoDir) % for all cages
     try
         cd(genoDir(i).name);
         cageDir = dir;
-        for j=3:length(cageDir)
+        for j=3:length(cageDir) % for all mice
             try
                 cd(cageDir(j).name);
                 mouseDir = dir;
-                for k=3:length(mouseDir)
+                for k=3:length(mouseDir)    % for all days
                     try
                         cd(mouseDir(k).name);
                         dayDir = dir;
-                        for m=3:length(dayDir)
+                        for m=3:length(dayDir)  % for all sessions
                             try
                                 cd(dayDir(m).name);
                                 txtFilename = findLatestFilename('.txt');
@@ -26,7 +26,7 @@ for i=3:length(genoDir)
                                    n=n+1;
                                    stage1cell{n,1} = cageDir(j).name; % mouse
                                    stage1cell{n,2} = mouseDir(k).name; % day
-                                   stage1cell{n,3} = dayDir(j).name; % session
+                                   stage1cell{n,3} = dayDir(m).name; % session
                                    load(findLatestFilename('dendriteBehavStruc'));
                                    stage1cell{n,4} = dendriteBehavStruc;
                                 
