@@ -19,18 +19,21 @@ for i=3:length(genoDir) % for all cages
                         for m=3:length(dayDir)  % for all sessions
                             try
                                 cd(dayDir(m).name);
-                                txtFilename = findLatestFilename('.txt');
+                                binFilename = findLatestFilename('.bin');
+                                txtFilename = [binFilename(1:strfind(binFilename, '.bin')-1) '.txt'];
                                 [programName] = readArduinoProgramName(txtFilename);
                                 
                                 if ~isempty(strfind(programName,'tage'))
-                                   n=n+1;
-                                   stage1cell{n,1} = cageDir(j).name; % mouse
-                                   stage1cell{n,2} = mouseDir(k).name; % day
-                                   stage1cell{n,3} = dayDir(m).name; % session
-                                   load(findLatestFilename('dendriteBehavStruc'));
-                                   stage1cell{n,4} = dendriteBehavStruc;
-                                
-                                
+                                    
+                                    
+                                    %load(findLatestFilename('dendriteBehavStruc'));
+                                    [dendriteBehavStruc] = dendriteBehavAnalysisSession();
+                                    n=n+1;
+                                    stage1cell{n,4} = dendriteBehavStruc;
+                                    
+                                    stage1cell{n,1} = cageDir(j).name; % mouse
+                                    stage1cell{n,2} = mouseDir(k).name; % day
+                                    stage1cell{n,3} = dayDir(m).name; % session
                                 end
                             catch
                             end

@@ -1,14 +1,8 @@
-function [dendriteBehavStruc] = dendriteBehavAnalysisSession(varargin) % tifName, dayPath, seg, toProcess)
+function [dendriteBehavStruc] = dendriteBehavAnalysisSession() % tifName, dayPath, seg, toProcess)
 
 % Clay Mar. 2017
 % This function performs the current dendriteBehavAnalysis within a session
 % folder
-
-if nargin == 1
-    toSave = varargin{1};
-else
-    toSave = 0;
-end
 
 toPlot = 0;
 %toProcess = 0;
@@ -355,8 +349,6 @@ toc;
 disp('Saving dendriteBehavStruc'); tic;
 save([fn '_dendriteBehavStruc_' date], 'dendriteBehavStruc');
 toc;
-end
-
 
 clear tifStack tifStack2; % dendriteBehavStruc;
 

@@ -1,4 +1,4 @@
-function [zeroFrame, eventCa , eventCaAvg] = eventTrigCa(filename, eventStruc, fps, frameAvgDf, field, tifStack2)
+function [zeroFrame, eventCa , eventCaAvg] = eventTrigCa(filename, eventStruc, fps, frameAvgDf, field) %, tifStack2)
 
 %
 % this is basically a subfunction of dendriteBehavAnalysis
@@ -78,21 +78,21 @@ for k = 1:length(endFrame)
     
     %plot(corrRewCa(:,k));
     
-    if saveTif
-        
-        try
-            %                     % tifStack avg
-            if strcmp(eventName, 'rewStimStimInd')
-                rewStimTif(:,:,:,k) = tifStack2(:,:,(beginFrame(k):endFrame(k)));
-            elseif strcmp(eventName, 'unrewStimStimInd')
-                unrewStimTif(:,:,:,k) = tifStack2(:,:,(beginFrame(k):endFrame(k)));
-            end
-            
-            
-        catch
-        end
-        
-    end
+%     if saveTif
+%         
+%         try
+%             %                     % tifStack avg
+%             if strcmp(eventName, 'rewStimStimInd')
+%                 rewStimTif(:,:,:,k) = tifStack2(:,:,(beginFrame(k):endFrame(k)));
+%             elseif strcmp(eventName, 'unrewStimStimInd')
+%                 unrewStimTif(:,:,:,k) = tifStack2(:,:,(beginFrame(k):endFrame(k)));
+%             end
+%             
+%             
+%         catch
+%         end
+%         
+%     end
     
 end
 
